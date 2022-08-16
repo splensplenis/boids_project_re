@@ -27,7 +27,7 @@ Vector applied_distance(Boid const& boid1, Boid const& boid2) {
 }
 
 Flock::Flock(std::vector<Boid> v, Species s) : flock_{v}, species_{s} {};
-// Flock::Flock(Flock const& f) : flock_{f.flock_} {}
+Flock::Flock(Flock const& f) : flock_{f.flock_} {}
 int Flock::size() const { return flock_.size(); }
 std::vector<Boid> Flock::get_flock() const { return flock_; }
 Species Flock::get_species() const { return species_; }
@@ -35,7 +35,7 @@ void Flock::add(Boid const& b1) { flock_.push_back(b1); }
 
 bool are_neighbours(Flock f, Boid const& boid1, Boid const& boid2) {
   auto sp = f.get_species();
-  return (distance(boid1, boid2) <= sp.distance_);
+  return (distance(boid1, boid2) <= sp.distance);
 }
 bool is_member(Flock f, Boid const& boid) {
   auto flock = f.get_flock();
@@ -80,35 +80,35 @@ auto get_neighbours_of(Flock f, Boid const& boid) {
 */
 
 Vector separation(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
-  auto flock = f.get_flock();
+  //auto flock = f.get_flock();
   auto sp = f.get_species();
   Vector partial_sum{};
   std::for_each(neighbours.begin(), neighbours.end(), [&](Boid const& boid) {
-    if (distance(boid, boid1) <= sp.separation_distance_) {
+    if (distance(boid, boid1) <= sp.separation_distance) {
       partial_sum += applied_distance(boid1, boid);
     }
   });
-  Vector v1_corr = partial_sum * (-sp.separation_);
+  Vector v1_corr = partial_sum * (-sp.separation);
   return v1_corr;
 }
 Vector alignment(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
-  auto flock = f.get_flock();
+ // auto flock = f.get_flock();
   auto sp = f.get_species();
   Vector sum_velocity{};
   std::for_each(neighbours.begin(), neighbours.end(),
                 [&](Boid const& boid) { sum_velocity += boid.velocity; });
   Vector v2_corr =
-      (sum_velocity / neighbours.size() - boid1.velocity) * sp.alignment_;
+      (sum_velocity / neighbours.size() - boid1.velocity) * sp.alignment;
   return v2_corr;
 }
 Vector cohesion(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
-  auto flock = f.get_flock();
+  //auto flock = f.get_flock();
   auto sp = f.get_species();
   Vector partial_sum{};
   std::for_each(neighbours.begin(), neighbours.end(),
                 [&](Boid const& boid) { partial_sum += boid.position; });
   Vector centre_of_mass = partial_sum / neighbours.size();
-  Vector v3_corr = (centre_of_mass - boid1.position) * sp.cohesion_;
+  Vector v3_corr = (centre_of_mass - boid1.position) * sp.cohesion;
   return v3_corr;
 }
 
@@ -131,29 +131,29 @@ Vector distance_parameters(Flock f) {
   // filling a histogram with distances between all boids of the flock
   // then calculating its mean and standard deviation for a given time
   std::vector<double> dist_histo{};
-  double partial_sum2{};
   double partial_sum{};
+  double partial_sum2{};
   auto flock = f.get_flock();
   for (int i{}; i != f.size(); ++i) {
     for (int j{i + 1}; j != f.size(); ++j) {
       double value = distance(flock[i], flock[j]);
       dist_histo.push_back(value);
       // this way distance bewtween boid 0 and boid 1 is calculated only once
-      // etc
+      // non dovremmo mettere un i!=j ?
       partial_sum2 += value;
     }
   }
-  double mean_dist = partial_sum2 / f.size();
+  double mean_distance = partial_sum2 / f.size();
   for (int i{}; i != f.size(); ++i) {
-    partial_sum += (dist_histo[i] - mean_dist) * (dist_histo[i] - mean_dist);
+    partial_sum += (dist_histo[i] - mean_distance) * (dist_histo[i] - mean_distance);
   }
-  double stddev_dist = partial_sum / (f.size() - 1);
-  return Vector{mean_dist, stddev_dist};
+  double stddev_distance = partial_sum / (f.size() - 1);
+  return Vector{mean_distance, stddev_distance};
 }
 Vector velocity_parameters(Flock f) {
   std::vector<double> speed_histo{};
-  double partial_sum2{};
   double partial_sum{};
+  double partial_sum2{};
   auto flock = f.get_flock();
   for (int i{}; i != f.size(); ++i) {
     double value = speed(flock[i]);

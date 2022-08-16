@@ -21,12 +21,12 @@ double speed(Boid const&);
 Vector applied_distance(Boid const&, Boid const&);
 
 struct Species {
-  double distance_;
-  double separation_distance_;
-  double separation_;
-  double alignment_;
-  double cohesion_;
-  double alpha_;  // in degrees
+  double distance;
+  double separation_distance;
+  double separation;
+  double alignment;
+  double cohesion;
+  double alpha;  // in degrees
 };
 
 class Flock {
@@ -35,7 +35,7 @@ class Flock {
 
  public:
   Flock(std::vector<Boid>, Species);
-  // Flock(Flock const&);
+  Flock(Flock const&);
   int size() const;
   std::vector<Boid> get_flock() const;
   Species get_species() const;
