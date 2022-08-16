@@ -11,6 +11,7 @@ bool operator==(Boid const& boid1, Boid const& boid2) {
 bool operator!=(Boid const& boid1, Boid const& boid2) {
   return !(boid1 == boid2);
 }
+
 Flock::Flock(std::vector<Boid> v, Species s) : boids_{v}, species_{s} {};
 Flock::Flock(Flock const& f) : boids_{f.boids_} {}
 int Flock::size() const { return boids_.size(); }
