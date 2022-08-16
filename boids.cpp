@@ -26,19 +26,19 @@ Vector applied_distance(Boid const& boid1, Boid const& boid2) {
   return diff;
 }
 
-Flock::Flock(std::vector<Boid> v, Species s) : flock_{v}, species_{s} {};
-Flock::Flock(Flock const& f) : flock_{f.flock_} {}
-int Flock::size() const { return flock_.size(); }
-std::vector<Boid> Flock::get_flock() const { return flock_; }
+Flock::Flock(std::vector<Boid> v, Species s) : boids_{v}, species_{s} {};
+Flock::Flock(Flock const& f) : boids_{f.boids_} {}
+int Flock::size() const { return boids_.size(); }
+std::vector<Boid> Flock::get_boids() const { return boids_; }
 Species Flock::get_species() const { return species_; }
-void Flock::add(Boid const& b1) { flock_.push_back(b1); }
+void Flock::add(Boid const& b1) { boids_.push_back(b1); }
 
 bool are_neighbours(Flock f, Boid const& boid1, Boid const& boid2) {
   auto sp = f.get_species();
   return (distance(boid1, boid2) <= sp.distance);
 }
 bool is_member(Flock f, Boid const& boid) {
-  auto flock = f.get_flock();
+  auto flock = f.get_boids();
   auto i = std::find(flock.begin(), flock.end(), boid);
   if (i != flock.end()) {
     return true;
@@ -46,7 +46,7 @@ bool is_member(Flock f, Boid const& boid) {
   return false;
 }
 auto get_neighbours_of(Flock f, Boid const& boid) {
-  auto flock = f.get_flock();
+  auto flock = f.get_boids();
   if (is_member(f, boid) == false) {
     throw std::runtime_error{"Boid is not in the flock"};
   }
@@ -113,18 +113,18 @@ Vector cohesion(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
 }
 
 void Flock::evolve(double delta_t) {
-  std::vector<Boid> copy{flock_};
+  std::vector<Boid> copy{boids_};
   for (int i{}; i != this->size(); ++i) {
     // corrections read from copy (old state)
     // and written to flock (updated state);
-    auto boid = flock_[i];
+    auto boid = boids_[i];
     auto boid_copied = copy[i];
     boid.velocity +=
         (separation(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
          alignment(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
          cohesion(*this, boid_copied, get_neighbours_of(*this, boid_copied)));
     boid.position += (boid_copied.velocity * delta_t);
-    flock_[i] = boid;
+    boids_[i] = boid;
   }
 }
 Vector distance_parameters(Flock f) {
@@ -133,7 +133,7 @@ Vector distance_parameters(Flock f) {
   std::vector<double> dist_histo{};
   double partial_sum{};
   double partial_sum2{};
-  auto flock = f.get_flock();
+  auto flock = f.get_boids();
   for (int i{}; i != f.size(); ++i) {
     for (int j{i + 1}; j != f.size(); ++j) {
       double value = distance(flock[i], flock[j]);
@@ -154,7 +154,7 @@ Vector velocity_parameters(Flock f) {
   std::vector<double> speed_histo{};
   double partial_sum{};
   double partial_sum2{};
-  auto flock = f.get_flock();
+  auto flock = f.get_boids();
   for (int i{}; i != f.size(); ++i) {
     double value = speed(flock[i]);
     speed_histo.push_back(value);

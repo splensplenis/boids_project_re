@@ -30,14 +30,14 @@ struct Species {
 };
 
 class Flock {
-  std::vector<Boid> flock_{};
+  std::vector<Boid> boids_{};
   Species species_{}; //which values are standard?
 
  public:
   Flock(std::vector<Boid>, Species);
   Flock(Flock const&);
   int size() const;
-  std::vector<Boid> get_flock() const;
+  std::vector<Boid> get_boids() const;
   Species get_species() const;
   void add(Boid const&);
   // operator[] () { return flock_[];}

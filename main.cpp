@@ -10,7 +10,7 @@ int main() {
   Species sp{10., 0.07, 0.9, 0.7, 0.6, 180};
   Flock f{std::vector<Boid>{b1,b2,b3}, sp};
   for (int i = 0.; i != 15; ++i) {
-    auto flock = f.get_flock();
+    auto flock = f.get_boids();
     std::cout << "----- Iteration #" << i << "-----" << '\n';
     (flock[0].position).print();
     (flock[1].position).print();
