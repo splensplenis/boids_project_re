@@ -1,58 +1,28 @@
-#include "boids.hpp"
-
-#include <iostream>
+#ifndef RULES_HPP
+#define RULES_HPP
 
 #include "vector.hpp"
-#include "rules.hpp"
+#include "boids.hpp"
 
-bool operator==(Boid const& boid1, Boid const& boid2) {
-  return (boid1.position == boid2.position && boid1.velocity == boid2.velocity);
-}
-bool operator!=(Boid const& boid1, Boid const& boid2) {
-  return !(boid1 == boid2);
-}
-Flock::Flock(std::vector<Boid> v, Species s) : boids_{v}, species_{s} {};
-Flock::Flock(Flock const& f) : boids_{f.boids_} {}
-int Flock::size() const { return boids_.size(); }
-std::vector<Boid> Flock::get_boids() const { return boids_; }
-Species Flock::get_species() const { return species_; }
-void Flock::add(Boid const& b1) { boids_.push_back(b1); }
-void Flock::evolve(double delta_t) {
-  std::vector<Boid> copy{boids_};
-  for (int i{}; i != this->size(); ++i) {
-    // corrections read from copy (old state)
-    // and written to flock (updated state);
-    auto boid = boids_[i];
-    auto boid_copied = copy[i];
-    boid.velocity +=
-        (separation(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
-         alignment(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
-         cohesion(*this, boid_copied, get_neighbours_of(*this, boid_copied)));
-    boid.position += (boid_copied.velocity * delta_t);
-    boids_[i] = boid;
-  }
-}
-
-/*double distance(Boid const& boid1, Boid const& boid2) {
+inline double distance(Boid const& boid1, Boid const& boid2) {
   // modulo del vettore distanza tra boids
   double d = sqrt(norm2(boid1.position - boid2.position));
   return d;
 }
-double speed(Boid const& boid) {  // modulo del vettore velocità
+inline double speed(Boid const& boid) {  // modulo del vettore velocità
   double s = sqrt(norm2(boid.velocity));
   return s;
 }
-Vector applied_distance(Boid const& boid1, Boid const& boid2) {
+inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
   // vettore distanza tra boids
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
-
-bool are_neighbours(Flock f, Boid const& boid1, Boid const& boid2) {
+inline bool are_neighbours(Flock f, Boid const& boid1, Boid const& boid2) {
   auto sp = f.get_species();
   return (distance(boid1, boid2) <= sp.distance);
 }
-bool is_member(Flock f, Boid const& boid) {
+inline bool is_member(Flock f, Boid const& boid) {
   auto flock = f.get_boids();
   auto i = std::find(flock.begin(), flock.end(), boid);
   if (i != flock.end()) {
@@ -60,7 +30,7 @@ bool is_member(Flock f, Boid const& boid) {
   }
   return false;
 }
-auto get_neighbours_of(Flock f, Boid const& boid) {
+inline auto get_neighbours_of(Flock f, Boid const& boid) {
   auto flock = f.get_boids();
   if (is_member(f, boid) == false) {
     throw std::runtime_error{"Boid is not in the flock"};
@@ -73,9 +43,8 @@ auto get_neighbours_of(Flock f, Boid const& boid) {
   }
   return neighbours;
 }
-
-auto view_neighbours(Flock f, Boid const& boid) {
-  auto flock = f.get_flock();
+inline auto view_neighbours(Flock f, Boid const& boid) {
+  auto flock = f.get_boids();
   auto sp = f.get_species();
   double pi = std::acos(-1.0);
   std::vector<Boid> view_neighbours{};
@@ -86,15 +55,13 @@ auto view_neighbours(Flock f, Boid const& boid) {
         std::acos((boid.velocity * applied_distance(boid, neighbours[i])) /
                   (speed(boid) * distance(boid, neighbours[i])));
     theta = 180 * theta / pi;
-    if (theta <= sp.alpha_) {
+    if (theta <= sp.alpha) {
       view_neighbours.push_back(neighbours[i]);
     }
   }
   return view_neighbours;
 }
-
-
-Vector separation(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
+inline Vector separation(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
   //auto flock = f.get_flock();
   auto sp = f.get_species();
   Vector partial_sum{};
@@ -106,7 +73,7 @@ Vector separation(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
   Vector v1_corr = partial_sum * (-sp.separation);
   return v1_corr;
 }
-Vector alignment(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
+inline Vector alignment(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
  // auto flock = f.get_flock();
   auto sp = f.get_species();
   Vector sum_velocity{};
@@ -116,7 +83,7 @@ Vector alignment(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
       (sum_velocity / neighbours.size() - boid1.velocity) * sp.alignment;
   return v2_corr;
 }
-Vector cohesion(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
+inline Vector cohesion(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
   //auto flock = f.get_flock();
   auto sp = f.get_species();
   Vector partial_sum{};
@@ -126,8 +93,7 @@ Vector cohesion(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
   Vector v3_corr = (centre_of_mass - boid1.position) * sp.cohesion;
   return v3_corr;
 }
-
-Vector distance_parameters(Flock f) {
+inline Vector distance_parameters(Flock f) {
   // filling a histogram with distances between all boids of the flock
   // then calculating its mean and standard deviation for a given time
   std::vector<double> dist_histo{};
@@ -150,7 +116,7 @@ Vector distance_parameters(Flock f) {
   double stddev_distance = partial_sum / (f.size() - 1);
   return Vector{mean_distance, stddev_distance};
 }
-Vector velocity_parameters(Flock f) {
+inline Vector velocity_parameters(Flock f) {
   std::vector<double> speed_histo{};
   double partial_sum{};
   double partial_sum2{};
@@ -168,4 +134,4 @@ Vector velocity_parameters(Flock f) {
   double stddev_speed = partial_sum / (f.size() - 1);
   return Vector{mean_speed, stddev_speed};
 }
-*/
+#endif

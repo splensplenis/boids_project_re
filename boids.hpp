@@ -16,10 +16,6 @@ struct Boid {
 bool operator==(Boid const&, Boid const&);
 bool operator!=(Boid const&, Boid const&);
 
-double distance(Boid const&, Boid const&);
-double speed(Boid const&);
-Vector applied_distance(Boid const&, Boid const&);
-
 struct Species {
   double distance;
   double separation_distance;
@@ -44,6 +40,11 @@ class Flock {
   void evolve(double);
 };
 
+/*
+double distance(Boid const&, Boid const&);
+double speed(Boid const&);
+Vector applied_distance(Boid const&, Boid const&);
+
 // control of neighbourhood:
 bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be const&?
 bool is_member(Flock, Boid const&);
@@ -61,6 +62,6 @@ Vector cohesion(Flock, Boid const&, std::vector<Boid>);    // cohesion
 //Flock evolve(Flock, double);
 Vector distance_parameters(Flock);
 Vector velocity_parameters(Flock);
-
+*/
 
 #endif

@@ -2,6 +2,7 @@
 
 #include "boids.hpp"
 #include "vector.hpp"
+#include "rules.hpp"
 
 int main() {
   Boid b1{Vector{2., 1.}, Vector{0., 1.}};
