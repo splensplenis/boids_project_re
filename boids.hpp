@@ -16,27 +16,29 @@ struct Boid {
 bool operator==(Boid const&, Boid const&);
 bool operator!=(Boid const&, Boid const&);
 
-struct Species {
+struct Options {
   double distance;
   double separation_distance;
   double separation;
   double alignment;
   double cohesion;
-  double alpha;  // in degrees
+  // double alpha;  // in degrees
 };
 
 class Flock {
   std::vector<Boid> boids_{};
-  Species species_{}; //which values are standard?
+  Options boids_options_{};  // lo crei come cin con limitazione di range dei
+                             // valori 0,1
+  double alpha_;
 
  public:
-  Flock(std::vector<Boid>, Species);
+  Flock(std::vector<Boid> const&, Options const&, double);
   Flock(Flock const&);
   int size() const;
   std::vector<Boid> get_boids() const;
-  Species get_species() const;
+  Options get_options() const;
+  double get_alpha() const;
   void add(Boid const&);
-  // operator[] () { return flock_[];}
   void evolve(double);
 };
 
@@ -46,9 +48,9 @@ double speed(Boid const&);
 Vector applied_distance(Boid const&, Boid const&);
 
 // control of neighbourhood:
-bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be const&?
-bool is_member(Flock, Boid const&);
-auto get_neighbours_of(Flock, Boid const&); //auto here stands for std::vector<Boid>
+bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be
+const&? bool is_member(Flock, Boid const&); auto get_neighbours_of(Flock, Boid
+const&); //auto here stands for std::vector<Boid>
 //auto view_neighbours(Flock, Boid const&);
 
 // rules:

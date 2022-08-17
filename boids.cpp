@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "vector.hpp"
 #include "rules.hpp"
+#include "vector.hpp"
 
 bool operator==(Boid const& boid1, Boid const& boid2) {
   return (boid1.position == boid2.position && boid1.velocity == boid2.velocity);
@@ -11,12 +11,14 @@ bool operator==(Boid const& boid1, Boid const& boid2) {
 bool operator!=(Boid const& boid1, Boid const& boid2) {
   return !(boid1 == boid2);
 }
-
-Flock::Flock(std::vector<Boid> v, Species s) : boids_{v}, species_{s} {};
-Flock::Flock(Flock const& f) : boids_{f.boids_} {}
+Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options,
+             double alpha)
+    : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {};
+Flock::Flock(Flock const& flock) : boids_{flock.boids_} {}
 int Flock::size() const { return boids_.size(); }
 std::vector<Boid> Flock::get_boids() const { return boids_; }
-Species Flock::get_species() const { return species_; }
+Options Flock::get_options() const { return boids_options_; }
+double Flock::get_alpha() const { return alpha_; }
 void Flock::add(Boid const& b1) { boids_.push_back(b1); }
 void Flock::evolve(double delta_t) {
   std::vector<Boid> copy{boids_};
@@ -146,7 +148,8 @@ Vector distance_parameters(Flock f) {
   }
   double mean_distance = partial_sum2 / f.size();
   for (int i{}; i != f.size(); ++i) {
-    partial_sum += (dist_histo[i] - mean_distance) * (dist_histo[i] - mean_distance);
+    partial_sum += (dist_histo[i] - mean_distance) * (dist_histo[i] -
+mean_distance);
   }
   double stddev_distance = partial_sum / (f.size() - 1);
   return Vector{mean_distance, stddev_distance};
