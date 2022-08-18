@@ -11,6 +11,8 @@ class Vector{
     public:
     Vector();
     Vector(double, double);
+    //Vector(Vector); by deafult?
+    //Vector(-Vector); should define -Vector?
     void print();
     double x() const;
     double y() const;

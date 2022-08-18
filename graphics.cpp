@@ -6,16 +6,17 @@
 
 #include "boids.hpp"
 
-auto evolve(Flock& flock, int steps_per_evolution, sf::Time delta_t) {
+auto evolve(Ambient amb, Flock& flock, int steps_per_evolution, sf::Time delta_t) {
   double const dt{delta_t.asSeconds()};
 
   for (int i{0}; i != steps_per_evolution; ++i) {
-    flock.evolve(dt);
+    flock.evolve(amb, dt);
   }
   return flock.get_flock();
 }
 
 int main() {
+   //random boid generation
   int N = 10;
   std::default_random_engine gen;
 
@@ -40,7 +41,7 @@ int main() {
   Boid b2{Vector{4., 3.}, Vector{-1., 0.}};
   Boid b3{Vector{1., 4.}, Vector{2., 0.5}};
   */
-  Species sp{10., 0.1, 0.4, 0.6, 0.7, 180};
+  Species sp{10., 0.1, 0.9, 0.3, 0.5, 180};
   Flock f{empty, sp};
   for (int i = 0.; i != N; ++i) {
     Boid b{Vector{pos_x[i], pos_y[i]}, Vector{vel_x[i], vel_y[i]}};
@@ -54,10 +55,10 @@ int main() {
   unsigned const display_width = 0.9 * sf::VideoMode::getDesktopMode().width;
   unsigned const display_height = 0.9 * sf::VideoMode::getDesktopMode().height;
 
-  auto const min_x{-10.};
-  auto const max_x{10.};
-  auto const min_y{-10.};
-  auto const max_y{10.};
+  auto const min_x{0.};
+  auto const max_x{10.1};
+  auto const min_y{0.};
+  auto const max_y{10.1};
   auto const scale_x = display_width / (max_x - min_x);
   auto const scale_y = display_height / (max_y - min_y);
 
@@ -65,8 +66,10 @@ int main() {
                           "Boids!");
   window.setFramerateLimit(fps);
 
+  Ambient a{Vector{min_x, min_y}, Vector{max_x, max_y}};
+
   sf::Texture texture;
-  if (!texture.loadFromFile("image.png", sf::IntRect(10, 10, 20, 20))) {
+  if (!texture.loadFromFile("image.png", sf::IntRect(5, 5, 5, 5))) {
     std::cout << "ops" << '\n';
   }
   sf::Sprite sprite{};
@@ -80,7 +83,7 @@ int main() {
 
     window.clear(sf::Color::White);
 
-    auto const flock_vector = evolve(f, steps_per_evolution, delta_t);
+    auto const flock_vector = evolve(a, f, steps_per_evolution, delta_t);
 
     for (auto& boid : flock_vector) {
       sprite.setPosition((boid.position).x() * scale_x,

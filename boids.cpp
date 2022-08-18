@@ -111,8 +111,17 @@ Vector cohesion(Flock f, Boid const& boid1, std::vector<Boid> neighbours) {
   Vector v3_corr = (centre_of_mass - boid1.position) * sp.cohesion_;
   return v3_corr;
 }
+Vector avoid_boundaries(Ambient amb, Boid& boid) { //in rules.hpp
+  if ((boid.position).x() > (amb.bottom_right_corner).x()) {
+    return Vector{0, (boid.position).y()};
+  }
+  if ((boid.position).y() > (amb.bottom_right_corner).y()) {
+    return Vector{(boid.position).x(), 0};
+  }
+  else { return Vector{boid.position};}
+}
 
-void Flock::evolve(double delta_t) {
+void Flock::evolve(Ambient amb, double delta_t) {
   std::vector<Boid> copy{flock_};
   for (int i{}; i != this->size(); ++i) {
     // corrections read from copy (old state)
@@ -124,6 +133,7 @@ void Flock::evolve(double delta_t) {
          alignment(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
          cohesion(*this, boid_copied, get_neighbours_of(*this, boid_copied)));
     boid.position += (boid_copied.velocity * delta_t);
+    boid.position = avoid_boundaries(amb, boid);
     flock_[i] = boid;
   }
 }

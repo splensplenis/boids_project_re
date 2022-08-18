@@ -9,6 +9,11 @@
 
 #include "vector.hpp"
 
+struct Ambient {
+ Vector top_left_corner{};
+ Vector bottom_right_corner{};
+};
+
 struct Boid {
   Vector position{};
   Vector velocity{};
@@ -16,22 +21,17 @@ struct Boid {
 bool operator==(Boid const&, Boid const&);
 bool operator!=(Boid const&, Boid const&);
 
-double distance(Boid const&, Boid const&);
-double speed(Boid const&);
-Vector applied_distance(Boid const&, Boid const&);
-
-struct Species {
-  double distance_;
-  double separation_distance_;
-  double separation_;
-  double alignment_;
-  double cohesion_;
-  double alpha_;  // in degrees
+struct Options {
+  double distance;
+  double separation_distance;
+  double separation;
+  double alignment;
+  double cohesion;
 };
 
 class Flock {
-  std::vector<Boid> flock_{};
-  Species species_{}; //which values are standard?
+  std::vector<Boid> boids_{};
+  Options boids_options_{};
 
  public:
   Flock(std::vector<Boid>, Species);
@@ -41,8 +41,13 @@ class Flock {
   Species get_species() const;
   void add(Boid const&);
   // operator[] () { return flock_[];}
-  void evolve(double);
+  void evolve(Ambient, double);
 };
+
+/*
+double distance(Boid const&, Boid const&);
+double speed(Boid const&);
+Vector applied_distance(Boid const&, Boid const&);
 
 // control of neighbourhood:
 bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be const&?
@@ -61,6 +66,6 @@ Vector cohesion(Flock, Boid const&, std::vector<Boid>);    // cohesion
 //Flock evolve(Flock, double);
 Vector distance_parameters(Flock);
 Vector velocity_parameters(Flock);
-
+*/
 
 #endif
