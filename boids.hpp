@@ -32,19 +32,21 @@ struct Options {
 class Flock {
   std::vector<Boid> boids_{};
   Options boids_options_{};
+  double alpha_;
 
  public:
   Flock(std::vector<Boid>, Species);
   // Flock(Flock const&);
   int size() const;
-  std::vector<Boid> get_flock() const;
-  Species get_species() const;
+  std::vector<Boid> get_boids() const;
+  Options get_options() const;
+  double get_alpha() const;
   void add(Boid const&);
   // operator[] () { return flock_[];}
   void evolve(Ambient, double);
 };
 
-/*
+/* ->see "rules.hpp"
 double distance(Boid const&, Boid const&);
 double speed(Boid const&);
 Vector applied_distance(Boid const&, Boid const&);
@@ -61,6 +63,7 @@ Vector alignment(Flock, Boid const&, std::vector<Boid>);   // alignment
 Vector cohesion(Flock, Boid const&, std::vector<Boid>);    // cohesion
 
 // behaviour at edges:
+Vector avoid_boundaries(Ambient, Boid&);
 
 // evolution in time and its parameters:
 //Flock evolve(Flock, double);
