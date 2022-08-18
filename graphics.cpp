@@ -12,21 +12,22 @@ auto evolve(Ambient amb, Flock& flock, int steps_per_evolution, sf::Time delta_t
   for (int i{0}; i != steps_per_evolution; ++i) {
     flock.evolve(amb, dt);
   }
-  return flock.get_flock();
+  return flock.get_boids();
 }
 
 int main() {
+  
    //random boid generation
-  int N = 10;
+  int N = 15;
   std::default_random_engine gen;
 
-  std::normal_distribution<double> Vx(2, 0.5);
-  std::normal_distribution<double> Vy(2., 0.5);
+  std::normal_distribution<double> Vx(0.03, 0.05);
+  std::normal_distribution<double> Vy(0.03, 0.03);
   std::vector<double> vel_x{};
   std::vector<double> vel_y{};
 
-  std::uniform_real_distribution<double> Xx(-3., 3.);
-  std::uniform_real_distribution<double> Xy(-5., 5.);
+  std::uniform_real_distribution<double> Xx(0, 10.);
+  std::uniform_real_distribution<double> Xy(0., 10.);
   std::vector<double> pos_x{};
   std::vector<double> pos_y{};
   for (int n = 0; n != N; ++n) {  // coordinates are casually generated
@@ -36,24 +37,29 @@ int main() {
     pos_y.push_back(Xy(gen));
   }
   std::vector<Boid> empty{};
-  /*
-  Boid b1{Vector{2., 1.}, Vector{0., 1.}};
-  Boid b2{Vector{4., 3.}, Vector{-1., 0.}};
-  Boid b3{Vector{1., 4.}, Vector{2., 0.5}};
-  */
-  Species sp{10., 0.1, 0.9, 0.3, 0.5, 180};
-  Flock f{empty, sp};
+  Options sp{3, 0.4, 0.5, 0.3, 0.5};
+  Flock f{empty, sp, 180};
   for (int i = 0.; i != N; ++i) {
     Boid b{Vector{pos_x[i], pos_y[i]}, Vector{vel_x[i], vel_y[i]}};
     f.add(b);
   }
+  
+
+  /*Boid b1{Vector{1,1}, Vector{0,0}};
+  Boid b2{Vector{5,5}, Vector{0,0}};
+  Boid b3{Vector{10,10}, Vector{0,0}};
+  Boid b4{Vector{10,0}, Vector{0,0}};
+
+  Options sp{10., 0.1, 0.9, 0.3, 0.5};
+
+  Flock f{std::vector<Boid>{b1,b2,b3,b4}, sp, 180};*/
 
   auto const delta_t{sf::milliseconds(1)};
   int const fps = 30;
   int const steps_per_evolution{1000 / fps};
 
-  unsigned const display_width = 0.9 * sf::VideoMode::getDesktopMode().width;
-  unsigned const display_height = 0.9 * sf::VideoMode::getDesktopMode().height;
+  unsigned const display_width = 0.7 * sf::VideoMode::getDesktopMode().width;
+  unsigned const display_height = 0.7 * sf::VideoMode::getDesktopMode().height;
 
   auto const min_x{0.};
   auto const max_x{10.1};
@@ -66,11 +72,11 @@ int main() {
                           "Boids!");
   window.setFramerateLimit(fps);
 
-  Ambient a{Vector{min_x, min_y}, Vector{max_x, max_y}};
+  Ambient boundaries{Vector{min_x, min_y}, Vector{max_x, max_y}};
 
   sf::Texture texture;
-  if (!texture.loadFromFile("image.png", sf::IntRect(5, 5, 5, 5))) {
-    std::cout << "ops" << '\n';
+  if (!texture.loadFromFile("image.png", sf::IntRect(5, 5, 6, 6))) {
+    std::cout << "Cannot load boid graphics" << '\n';
   }
   sf::Sprite sprite{};
   sprite.setTexture(texture);
@@ -83,7 +89,9 @@ int main() {
 
     window.clear(sf::Color::White);
 
-    auto const flock_vector = evolve(a, f, steps_per_evolution, delta_t);
+    auto const flock_vector = 
+    //f.get_boids();
+     evolve(boundaries, f, steps_per_evolution, delta_t);
 
     for (auto& boid : flock_vector) {
       sprite.setPosition((boid.position).x() * scale_x,

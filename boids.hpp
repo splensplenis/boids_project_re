@@ -35,7 +35,7 @@ class Flock {
   double alpha_;
 
  public:
-  Flock(std::vector<Boid>, Species);
+  Flock(std::vector<Boid> const&, Options const&, double);
   // Flock(Flock const&);
   int size() const;
   std::vector<Boid> get_boids() const;

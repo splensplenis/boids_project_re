@@ -140,15 +140,22 @@ inline Vector velocity_parameters(Flock flock) {
   double stddev_speed = partial_sum / (flock.size() - 1);
   return Vector{mean_speed, stddev_speed};
 }
-// COMPORTAMENTO AI BORDI
-Vector avoid_boundaries(Ambient amb, Boid& boid) { //in rules.hpp
-  if ((boid.position).x() > (amb.bottom_right_corner).x()) {
-    return Vector{0, (boid.position).y()};
+// COMPORTAMENTO AI BORDI: "rimbalzo elastico"
+//se la posizione del boid supera il bordo alla successiva iterazione,
+//lo si riporta al bordo con velocità opposta (come se avesse urtato)
+Boid avoid_boundaries(Ambient ambient, Boid& boid) {
+  if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
+    Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()}; 
+    //in realtà anche y non è quella...approssimazione
+    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
+    return Boid{v1,v2};
   }
-  if ((boid.position).y() > (amb.bottom_right_corner).y()) {
-    return Vector{(boid.position).x(), 0};
+  if ((boid.position).y() > (ambient.bottom_right_corner).y()) {
+    Vector v1{(boid.position).x(), (ambient.bottom_right_corner).y()}; 
+    Vector v2{(boid.velocity).x(), - (boid.velocity).y()};
+    return Boid{v1,v2};
   }
-  else { return Vector{boid.position};}
+  else { return boid; }
 }
 
 #endif
