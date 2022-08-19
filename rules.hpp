@@ -4,7 +4,7 @@
 #include "boids.hpp"
 #include "vector.hpp"
 
-inline double distance(Boid const& boid1, Boid const& boid2) {
+inline double distance(Boid const& boid1, Boid const& boid2) { //CONST?
   // modulo del vettore distanza tra boids
   double d = sqrt(norm2(boid1.position - boid2.position));
   return d;
@@ -18,11 +18,11 @@ inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
-inline bool are_neighbours(Flock flock, Boid const& boid1, Boid const& boid2) {
+inline bool are_neighbours(Flock const& flock, Boid const& boid1, Boid const& boid2) {
   auto boids_options = flock.get_options();
   return (distance(boid1, boid2) <= boids_options.distance);
 }
-inline bool is_member(Flock flock, Boid const& boid) {
+inline bool is_member(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   auto member = std::find(boids.begin(), boids.end(), boid);
   if (member != boids.end()) {
@@ -30,7 +30,7 @@ inline bool is_member(Flock flock, Boid const& boid) {
   }
   return false;
 }
-inline auto get_neighbours_of(Flock flock, Boid const& boid) {
+inline auto get_neighbours_of(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   if (is_member(flock, boid) == false) {
     throw std::runtime_error{"Boid is not in the flock"};  // MODIFICA
@@ -43,7 +43,7 @@ inline auto get_neighbours_of(Flock flock, Boid const& boid) {
   }
   return neighbours;
 }
-inline auto view_neighbours(Flock flock, Boid const& boid) {
+inline auto view_neighbours(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   auto boids_options = flock.get_options();
   double pi = std::acos(-1.0);
@@ -62,7 +62,7 @@ inline auto view_neighbours(Flock flock, Boid const& boid) {
   }
   return view_neighbours;
 }
-inline Vector separation(Flock flock, Boid const& boid,
+inline Vector separation(Flock const& flock, Boid const& boid,
                          std::vector<Boid> neighbours) {
   // auto flock = f.get_flock();
   auto boids_options = flock.get_options();
@@ -75,7 +75,7 @@ inline Vector separation(Flock flock, Boid const& boid,
   Vector v1_corr = partial_sum * (-boids_options.separation);
   return v1_corr;
 }
-inline Vector alignment(Flock flock, Boid const& boid,
+inline Vector alignment(Flock const& flock, Boid const& boid,
                         std::vector<Boid> neighbours) {
   // auto flock = f.get_flock();
   auto boids_options = flock.get_options();
@@ -87,7 +87,7 @@ inline Vector alignment(Flock flock, Boid const& boid,
       boids_options.alignment;  // COSA FARE SE NON HA NEIGHBOURS(diviso per 0)?
   return v2_corr;
 }
-inline Vector cohesion(Flock flock, Boid const& boid,
+inline Vector cohesion(Flock const& flock, Boid const& boid,
                        std::vector<Boid> neighbours) {
   // auto flock = f.get_flock();
   auto boids_options = flock.get_options();
@@ -98,7 +98,7 @@ inline Vector cohesion(Flock flock, Boid const& boid,
   Vector v3_corr = (centre_of_mass - boid.position) * boids_options.cohesion;
   return v3_corr;
 }
-inline Vector distance_parameters(Flock flock) {
+inline Vector distance_parameters(Flock const& flock) {
   // filling a histogram with distances between all boids of the flock
   // then calculating its mean and standard deviation for a given time
   std::vector<double> dist_histo{};
@@ -122,7 +122,7 @@ inline Vector distance_parameters(Flock flock) {
   double stddev_distance = partial_sum / (flock.size() - 1);
   return Vector{mean_distance, stddev_distance};
 }
-inline Vector velocity_parameters(Flock flock) {
+inline Vector velocity_parameters(Flock const& flock) {
   std::vector<double> speed_histo{};
   double partial_sum{};
   double partial_sum2{};

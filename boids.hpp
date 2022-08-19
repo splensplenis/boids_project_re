@@ -22,6 +22,7 @@ struct Options {
   double separation;
   double alignment;
   double cohesion;
+  //double flocks_distance;
   // double alpha;  // in degrees
 };
 
@@ -41,6 +42,7 @@ class Flock {
   void add(Boid const&);
   void evolve(double);
 };
+
 
 /*
 double distance(Boid const&, Boid const&);
