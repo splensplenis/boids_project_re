@@ -5,6 +5,7 @@
 #include <random>
 
 #include "boids.hpp"
+#include "rules.hpp"
 
 auto evolve(Ambient amb, Flock& flock, int steps_per_evolution, sf::Time delta_t) {
   double const dt{delta_t.asSeconds()};
@@ -16,9 +17,9 @@ auto evolve(Ambient amb, Flock& flock, int steps_per_evolution, sf::Time delta_t
 }
 
 int main() {
-  
+  ///*
    //random boid generation
-  int N = 15;
+  int N = 10;
   std::default_random_engine gen;
 
   std::normal_distribution<double> Vx(0.03, 0.05);
@@ -38,21 +39,21 @@ int main() {
   }
   std::vector<Boid> empty{};
   Options sp{3, 0.4, 0.5, 0.3, 0.5};
-  Flock f{empty, sp, 180};
+  Flock f{empty, sp, 90};
   for (int i = 0.; i != N; ++i) {
     Boid b{Vector{pos_x[i], pos_y[i]}, Vector{vel_x[i], vel_y[i]}};
     f.add(b);
   }
-  
-
-  /*Boid b1{Vector{1,1}, Vector{0,0}};
+  //*/
+  /*
+  Boid b1{Vector{1,1}, Vector{0,0}};
   Boid b2{Vector{5,5}, Vector{0,0}};
   Boid b3{Vector{10,10}, Vector{0,0}};
   Boid b4{Vector{10,0}, Vector{0,0}};
 
-  Options sp{10., 0.1, 0.9, 0.3, 0.5};
+  Options sp{10., 0.6, 0.4, 0.1, 0.2};
 
-  Flock f{std::vector<Boid>{b1,b2,b3,b4}, sp, 180};*/
+  Flock f{std::vector<Boid>{b1,b2,b3,b4}, sp, 45};*/
 
   auto const delta_t{sf::milliseconds(1)};
   int const fps = 30;

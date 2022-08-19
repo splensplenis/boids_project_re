@@ -55,7 +55,7 @@ inline auto view_neighbours(Flock flock, Boid const& boid) {
         std::acos((boid.velocity * applied_distance(boid, neighbours[i])) /
                   (speed(boid) * distance(boid, neighbours[i])));
     theta = 180 * theta / pi;
-    double alpha = flock.get_alpha();
+    double alpha = flock.get_alpha();  // alpha is half the plain angle!
     if (theta <= alpha) {
       view_neighbours.push_back(neighbours[i]);
     }
@@ -141,21 +141,51 @@ inline Vector velocity_parameters(Flock flock) {
   return Vector{mean_speed, stddev_speed};
 }
 // COMPORTAMENTO AI BORDI: "rimbalzo elastico"
-//se la posizione del boid supera il bordo alla successiva iterazione,
-//lo si riporta al bordo con velocità opposta (come se avesse urtato)
-Boid avoid_boundaries(Ambient ambient, Boid& boid) {
+// se la posizione del boid supera il bordo alla successiva iterazione,
+// lo si riporta al bordo con velocità opposta (come se avesse urtato)
+inline bool out_of_borders(Ambient ambient, Boid& boid) {
+  if ((boid.position).x() < (ambient.top_left_corner).x() ||
+      (boid.position).x() > (ambient.bottom_right_corner).x())
+    return true;
+  if ((boid.position).y() < (ambient.top_left_corner).y() ||
+      (boid.position).y() > (ambient.bottom_right_corner).y())
+    return true;
+}
+inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
+  //should use bool out_of_borders
   if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
-    Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()}; 
-    //in realtà anche y non è quella...approssimazione
+    Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
+    // in realtà anche y non è quella...approssimazione
     Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
-    return Boid{v1,v2};
+    return Boid{v1, v2};
   }
   if ((boid.position).y() > (ambient.bottom_right_corner).y()) {
-    Vector v1{(boid.position).x(), (ambient.bottom_right_corner).y()}; 
-    Vector v2{(boid.velocity).x(), - (boid.velocity).y()};
-    return Boid{v1,v2};
+    Vector v1{(boid.position).x(), (ambient.bottom_right_corner).y()};
+    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
+    return Boid{v1, v2};
   }
-  else { return boid; }
+  if ((boid.position).x() < (ambient.top_left_corner).x()) {
+    Vector v1{(ambient.top_left_corner).x(), (boid.position).y()};
+    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
+    return Boid{v1, v2};
+  }
+  if ((boid.position).y() < (ambient.top_left_corner).y()) {
+    Vector v1{(boid.position).x(), (ambient.top_left_corner).y()};
+    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
+    return Boid{v1, v2};
+  } else {
+    return boid;
+  }
 }
+/*NOPE
+inline Vector air_resistance(Flock flock, Boid const& boid) {
+  double max_speed = velocity_parameters(flock).x() + 3 *
+velocity_parameters(flock).y(); //3std dev from mean?
+  //double min_speed = velocity_parameters(flock).x() - 3 *
+velocity_parameters(flock).y(); if (norm2(boid.velocity) > max_speed) { return
+Vector{max_speed, max_speed}; }
+  //should handle the case with min_speed?
+  else return boid.velocity;
+}*/
 
 #endif

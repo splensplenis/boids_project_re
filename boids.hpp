@@ -9,7 +9,7 @@
 
 #include "vector.hpp"
 
-struct Ambient {
+struct Ambient { //rectangluar ambient - should it be more general?
  Vector top_left_corner{};
  Vector bottom_right_corner{};
 };
