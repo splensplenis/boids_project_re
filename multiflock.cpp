@@ -6,39 +6,67 @@ class MultiFlocks {
 
  public:
   MultiFlocks(std::vector<Flock> const&);
-  int size() const;
+  //int size() const;
   std::vector<Flock> get_flocks() const;
-  double distance;  // andrebbe privata
-  // void evolve();
+  // double distance;  // andrebbe privata
+  void evolve();
 };
 MultiFlocks::MultiFlocks(std::vector<Flock> const& flocks) : flocks_{flocks} {}
-int MultiFlocks::size() const { return flocks_.size(); }
+//int MultiFlocks::size() const { return flocks_.size(); }
 std::vector<Flock> MultiFlocks::get_flocks() const { return flocks_; }
-
-std::vector<Boid> other_neighbours(MultiFlocks const& multiflocks,
-                                   Boid const& boid) {
+std::vector<Boid> get_other_neighbours(MultiFlocks const& multiflocks,
+                                       Boid const& boid) {
   std::vector<Boid> other_boids{};
   auto flocks = multiflocks.get_flocks();
+  double alpha;
+  Options boid_options;
   for (int i; i != flocks.size() - 1; ++i) {  // VA MESSO SIZE-1 NEI VETTORI??
-    auto flock_i = flocks[i].get_boids();
+    auto flock_i = flocks[i].get_boids();     // con find_if?
     auto member = std::find(flock_i.begin(), flock_i.end(), boid);
     if (member == flock_i.end()) {
       std::copy(flock_i.begin(), flock_i.end(),
                 std::back_inserter(other_boids));
     }
-  }
-  std::vector<Boid> other_neighbours{};
-  for (int i; i != other_boids.size() - 1; ++i) {
-    if (distance(boid, other_boids[i]) <= multiflocks.distance) {
-      other_neighbours.push_back(other_boids[i]);
+    if (member != flock_i.end()) {
+      alpha = flocks[i].get_alpha();
+      boid_options = flocks[i].get_options();
     }
   }
+  std::vector<Boid> other_neighbours{};
+  Flock other_boids_flock{other_boids, boid_options, alpha};
+  other_neighbours = get_neighbours_of(other_boids_flock, boid);
   return other_neighbours;
 }  // cosi ho tutti ii vicini entro una certa distanza
-// andrebbe messo anche entro l'angolo di visione, ma è variabile privata di
-// flock e così non ho il flock del boid
-/*
-void MultiFlocks::evolve(Boid& boid) {
+
+/*for (int i; i != other_boids.size() - 1; ++i) {
+if (distance(boid, other_boids[i]) <= multiflocks.distance) {
+  other_neighbours.push_back(other_boids[i]);
+}
+}*/
+
+std::vector<Boid> view_other_neighbours(MultiFlocks const& multiflocks,
+                                        Boid const& boid) {
+  std::vector<Boid> other_neighbours = get_other_neighbours(multiflocks, boid);
+  auto flocks = multiflocks.get_flocks();
+  double alpha;
+  Options boid_options{};
+  for (int i; i != flocks.size() - 1;
+       ++i) {  // altro modo per trovare a quale flock appartiene boid?
+    auto flock_i = flocks[i].get_boids();
+    auto member = std::find(flock_i.begin(), flock_i.end(), boid);
+    if (member != flock_i.end()) {
+      alpha = flocks[i].get_alpha();
+      boid_options = flocks[i].get_options();
+    }
+  }
+  Flock other_neighbours_flock{other_neighbours, boid_options, alpha};
+  std::vector<Boid> view_other_neighbours{};
+  view_other_neighbours =
+      view_neighbours(other_neighbours_flock,
+                      boid);  // distance è quella dello stesso flock cosi
+  return view_other_neighbours;
+}
+/*void MultiFlocks::evolve(Boid& boid) {
   for (int i = 0; i != this->size(); ++i) {
     if (is_member(flocks_[i], boid) == true) {
       Flock myflock = flocks_[i];
@@ -66,18 +94,4 @@ void MultiFlocks::evolve(Boid& boid) {
   boid.velocity += separation(myflock, boid, other_neighbours);
   //devo usare un boid copied come in Flock::evolve, altrimenti
   //si fa evolvere un boid alla volta mentre deve essere contemporaneo
-}
-*/
-
-/*Flocks flocks_separation(Flocks const& f, ) {
-  auto i = f[i]
 }*/
-
-/*for(int i; i!=multiflocks.size(); ++i){
-    if(is_member(flocks[i],boid)==false) {
-        std::copy(flocks.begin(), flocks.end(), other_flocks.begin()); NO
-    }*/
-/*std::copy_if(flock_i.begin(), flock_i.end(),
-std::back_inserter(other_boids),
-[&](Flock const& flock1) { is_member(flock1, boid) == false;}); //flock viene
-preso da flocks? */
