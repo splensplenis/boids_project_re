@@ -77,26 +77,33 @@ inline Vector separation(Flock flock, Boid const& boid,
 }
 inline Vector alignment(Flock flock, Boid const& boid,
                         std::vector<Boid> neighbours) {
-  // auto flock = f.get_flock();
-  auto boids_options = flock.get_options();
-  Vector sum_velocity{};
-  std::for_each(neighbours.begin(), neighbours.end(),
-                [&](Boid const& boid1) { sum_velocity += boid1.velocity; });
-  Vector v2_corr =
-      (sum_velocity / neighbours.size() - boid.velocity) *
-      boids_options.alignment;  // COSA FARE SE NON HA NEIGHBOURS(diviso per 0)?
-  return v2_corr;
+  if (neighbours.size() != 0) {
+    // auto flock = f.get_flock();
+    auto boids_options = flock.get_options();
+    Vector sum_velocity{};
+    std::for_each(neighbours.begin(), neighbours.end(),
+                  [&](Boid const& boid1) { sum_velocity += boid1.velocity; });
+    Vector v2_corr = (sum_velocity / neighbours.size() - boid.velocity) *
+                     boids_options.alignment;
+    return v2_corr;
+  } else {
+    return Vector{0, 0};
+  }
 }
 inline Vector cohesion(Flock flock, Boid const& boid,
                        std::vector<Boid> neighbours) {
-  // auto flock = f.get_flock();
-  auto boids_options = flock.get_options();
-  Vector partial_sum{};
-  std::for_each(neighbours.begin(), neighbours.end(),
-                [&](Boid const& boid1) { partial_sum += boid1.position; });
-  Vector centre_of_mass = partial_sum / neighbours.size();
-  Vector v3_corr = (centre_of_mass - boid.position) * boids_options.cohesion;
-  return v3_corr;
+  if (neighbours.size() != 0) {
+    // auto flock = f.get_flock();
+    auto boids_options = flock.get_options();
+    Vector partial_sum{};
+    std::for_each(neighbours.begin(), neighbours.end(),
+                  [&](Boid const& boid1) { partial_sum += boid1.position; });
+    Vector centre_of_mass = partial_sum / neighbours.size();
+    Vector v3_corr = (centre_of_mass - boid.position) * boids_options.cohesion;
+    return v3_corr;
+  } else {
+    return Vector{0, 0};
+  }
 }
 inline Vector distance_parameters(Flock flock) {
   // filling a histogram with distances between all boids of the flock
@@ -152,7 +159,7 @@ inline bool out_of_borders(Ambient ambient, Boid& boid) {
     return true;
 }
 inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
-  //should use bool out_of_borders
+  // should use bool out_of_borders
   if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
     Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
     // in realtà anche y non è quella...approssimazione
@@ -177,15 +184,19 @@ inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
     return boid;
   }
 }
-/*NOPE
-inline Vector air_resistance(Flock flock, Boid const& boid) {
-  double max_speed = velocity_parameters(flock).x() + 3 *
-velocity_parameters(flock).y(); //3std dev from mean?
-  //double min_speed = velocity_parameters(flock).x() - 3 *
-velocity_parameters(flock).y(); if (norm2(boid.velocity) > max_speed) { return
-Vector{max_speed, max_speed}; }
-  //should handle the case with min_speed?
-  else return boid.velocity;
-}*/
+
+inline Vector air_resistance(Flock flock, Boid& boid) {
+  double max_speed = velocity_parameters(flock).x() +
+                     3 * velocity_parameters(flock).y();  // 3std dev from mean?
+  // double min_speed = velocity_parameters(flock).x() - 3
+  // *velocity_parameters(flock).y();
+  if ( speed(boid) > max_speed) {
+    boid.velocity /= speed (boid);
+    boid.velocity *= max_speed;
+    return boid.velocity;
+  }
+  // should handle the case with min_speed?
+  else { return boid.velocity; }
+}
 
 #endif

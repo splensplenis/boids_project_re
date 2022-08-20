@@ -1,13 +1,16 @@
 // compile with: g++ graphics.cpp -lsfml-graphics -lsfml-window -lsfml-system
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <random>
 
 #include "boids.hpp"
 #include "rules.hpp"
 
-auto evolve(Ambient amb, Flock& flock, int steps_per_evolution, sf::Time delta_t) {
+auto evolve(Ambient amb, Flock& flock, int steps_per_evolution,
+            sf::Time delta_t) {
   double const dt{delta_t.asSeconds()};
 
   for (int i{0}; i != steps_per_evolution; ++i) {
@@ -16,14 +19,16 @@ auto evolve(Ambient amb, Flock& flock, int steps_per_evolution, sf::Time delta_t
   return flock.get_boids();
 }
 
-int main() {
-  ///*
-   //random boid generation
-  int N = 10;
+int main(int argc, char* argv[]) {
+  std::ofstream fos;     // file output stream
+  fos.open("data.txt");  // statistics printed here, to be used on root
+
+  // random boid generation
+  int N = 5;
   std::default_random_engine gen;
 
-  std::normal_distribution<double> Vx(0.03, 0.05);
-  std::normal_distribution<double> Vy(0.03, 0.03);
+  std::normal_distribution<double> Vx(1, 0.05);
+  std::normal_distribution<double> Vy(0.5, 0.03);
   std::vector<double> vel_x{};
   std::vector<double> vel_y{};
 
@@ -38,26 +43,37 @@ int main() {
     pos_y.push_back(Xy(gen));
   }
   std::vector<Boid> empty{};
-  Options sp{3, 0.4, 0.5, 0.3, 0.5};
-  Flock f{empty, sp, 90};
+  Options sp{3, 0.4, 0.9, 0.9, 0.5};
+  Flock f{empty, sp, 180};
   for (int i = 0.; i != N; ++i) {
     Boid b{Vector{pos_x[i], pos_y[i]}, Vector{vel_x[i], vel_y[i]}};
     f.add(b);
   }
-  //*/
+
   /*
+  //questo funziona solo con get neighbours, non view neighbours
+  //(angolo di visione ha bisogno di velocità di volo non-nulla)
   Boid b1{Vector{1,1}, Vector{0,0}};
   Boid b2{Vector{5,5}, Vector{0,0}};
   Boid b3{Vector{10,10}, Vector{0,0}};
   Boid b4{Vector{10,0}, Vector{0,0}};
 
+  Boid b5{Vector{8,7}, Vector{0,0}};
+  Boid b6{Vector{2,3}, Vector{0,0}};
+  Boid b7{Vector{4,4}, Vector{0,0}};
+  Boid b8{Vector{1.6,3.8}, Vector{0,0}};
+
   Options sp{10., 0.6, 0.4, 0.1, 0.2};
 
-  Flock f{std::vector<Boid>{b1,b2,b3,b4}, sp, 45};*/
+  Flock f1{std::vector<Boid>{b1,b2,b3,b4}, sp, 45};
+  Flock f2{std::vector<Boid>{b5,b6,b7,b8}, sp, 45};
+  */
 
   auto const delta_t{sf::milliseconds(1)};
   int const fps = 30;
   int const steps_per_evolution{1000 / fps};
+
+  double time_count = 0.;
 
   unsigned const display_width = 0.7 * sf::VideoMode::getDesktopMode().width;
   unsigned const display_height = 0.7 * sf::VideoMode::getDesktopMode().height;
@@ -90,17 +106,27 @@ int main() {
 
     window.clear(sf::Color::White);
 
-    auto const flock_vector = 
-    //f.get_boids();
-     evolve(boundaries, f, steps_per_evolution, delta_t);
+    auto const flock_vector1 =
+        // f.get_boids();
+        evolve(boundaries, f, steps_per_evolution, delta_t);
+    // auto const flock_vector2 = evolve(boundaries, f2, steps_per_evolution,
+    // delta_t);
 
-    for (auto& boid : flock_vector) {
+    for (auto& boid : flock_vector1) {
       sprite.setPosition((boid.position).x() * scale_x,
                          (boid.position).y() * scale_y);
       window.draw(sprite);
     }
+    /*for (auto& boid : flock_vector2) {
+      sprite.setPosition((boid.position).x() * scale_x,
+                         (boid.position).y() * scale_y);
+      window.draw(sprite);
+    }*/
 
     window.display();
+    time_count += delta_t.asSeconds();
+    fos <<  time_count << '\t' << (velocity_parameters(f)).x() << '\t' << (distance_parameters(f)).x()
+        << '\n';
   }
   return 0;
 }

@@ -28,19 +28,19 @@ void Flock::evolve(Ambient amb, double delta_t) {
     // and written to flock (updated state);
     auto boid = boids_[i];
     auto boid_copied = copy[i];
+    /*
     boid.velocity +=
         (separation(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
          alignment(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
          cohesion(*this, boid_copied, get_neighbours_of(*this, boid_copied)));
-    /*
+    */
     boid.velocity += 
         (separation(*this, boid_copied, view_neighbours(*this, boid_copied)) +
          alignment(*this, boid_copied, view_neighbours(*this, boid_copied)) +
          cohesion(*this, boid_copied, view_neighbours(*this, boid_copied)));
-    */
-    boid.velocity = air_resistance(*this, boid_copied);
+    //boid.velocity = air_resistance(*this, boid_copied);
     boid.position += (boid_copied.velocity * delta_t);
-    //boid.position = avoid_boundaries(amb, boid);
+    //if (out_of_borders(amb, boid) == true) 
     boids_[i] = avoid_boundaries(amb, boid);
   }
 }
