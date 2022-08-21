@@ -45,7 +45,7 @@ inline auto get_neighbours_of(Flock flock, Boid const& boid) {
 }
 inline auto view_neighbours(Flock flock, Boid const& boid) {
   auto boids = flock.get_boids();
-  auto boids_options = flock.get_options();
+  // auto boids_options = flock.get_options();
   double pi = std::acos(-1.0);
   std::vector<Boid> view_neighbours{};
   std::vector<Boid> neighbours = get_neighbours_of(flock, boid);
@@ -200,4 +200,16 @@ inline Vector air_resistance(Flock flock, Boid& boid) {
   else { return boid.velocity; }
 }
 
+inline Vector air_resistance(Flock flock, Boid& boid) {
+  double max_speed = 2.; //should not use hard-coded numbers!
+  // double max_speed = velocity_parameters(flock).x() + 3 * velocity_parameters(flock).y();
+  // double min_speed = velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();
+  if ( speed(boid) > max_speed) {
+    boid.velocity /= speed (boid);
+    boid.velocity *= max_speed;
+    return boid.velocity;
+  }
+  // should handle the case with min_speed?
+  else { return boid.velocity; }
+}
 #endif
