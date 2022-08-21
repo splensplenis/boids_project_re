@@ -32,7 +32,7 @@ struct Options {
 class Flock {
   std::vector<Boid> boids_{};
   Options boids_options_{};
-  double alpha_;
+  double alpha_{180.}; 
 
  public:
   Flock(std::vector<Boid> const&, Options const&, double);
@@ -55,7 +55,7 @@ Vector applied_distance(Boid const&, Boid const&);
 bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be const&?
 bool is_member(Flock, Boid const&);
 auto get_neighbours_of(Flock, Boid const&); //auto here stands for std::vector<Boid>
-//auto view_neighbours(Flock, Boid const&);
+auto view_neighbours(Flock, Boid const&);
 
 // rules:
 Vector separation(Flock, Boid const&, std::vector<Boid>);  // separation
@@ -64,11 +64,13 @@ Vector cohesion(Flock, Boid const&, std::vector<Boid>);    // cohesion
 
 // behaviour at edges:
 Vector avoid_boundaries(Ambient, Boid&);
+Vector air_resistance(Flock, boid); //to avoid speeding
 
 // evolution in time and its parameters:
 //Flock evolve(Flock, double);
 Vector distance_parameters(Flock);
 Vector velocity_parameters(Flock);
+
 */
 
 #endif

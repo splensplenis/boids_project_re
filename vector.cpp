@@ -2,9 +2,9 @@
 #include <iostream>
 #include <cmath>
 
-Vector::Vector() : x_{}, y_{} {};
+Vector::Vector() : x_{}, y_{} {}
 Vector::Vector(double x = 0., double y = 0.)
-: x_{x}, y_{y} {};
+: x_{x}, y_{y} {}
 
 double Vector::x() const { return x_; }
 double Vector::y() const { return y_; }

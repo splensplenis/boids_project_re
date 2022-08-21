@@ -33,7 +33,7 @@ inline bool is_member(Flock flock, Boid const& boid) {
 inline auto get_neighbours_of(Flock flock, Boid const& boid) {
   auto boids = flock.get_boids();
   if (is_member(flock, boid) == false) {
-    throw std::runtime_error{"Boid is not in the flock"};  // MODIFICA
+    throw std::runtime_error{"Boid is not in the flock"};
   }
   std::vector<Boid> neighbours{};
   for (double i{}; i != flock.size(); ++i) {
@@ -150,6 +150,7 @@ inline Vector velocity_parameters(Flock flock) {
 // COMPORTAMENTO AI BORDI: "rimbalzo elastico"
 // se la posizione del boid supera il bordo alla successiva iterazione,
 // lo si riporta al bordo con velocità opposta (come se avesse urtato)
+/*
 inline bool out_of_borders(Ambient ambient, Boid& boid) {
   if ((boid.position).x() < (ambient.top_left_corner).x() ||
       (boid.position).x() > (ambient.bottom_right_corner).x())
@@ -158,8 +159,9 @@ inline bool out_of_borders(Ambient ambient, Boid& boid) {
       (boid.position).y() > (ambient.bottom_right_corner).y())
     return true;
 }
+*/
 inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
-  // should use bool out_of_borders
+  // should use bool out_of_borders?
   if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
     Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
     // in realtà anche y non è quella...approssimazione
@@ -186,10 +188,9 @@ inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
 }
 
 inline Vector air_resistance(Flock flock, Boid& boid) {
-  double max_speed = velocity_parameters(flock).x() +
-                     3 * velocity_parameters(flock).y();  // 3std dev from mean?
-  // double min_speed = velocity_parameters(flock).x() - 3
-  // *velocity_parameters(flock).y();
+  double max_speed = 2.; //should not use hard-coded numbers!
+  // double max_speed = velocity_parameters(flock).x() + 3 * velocity_parameters(flock).y();
+  // double min_speed = velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();
   if ( speed(boid) > max_speed) {
     boid.velocity /= speed (boid);
     boid.velocity *= max_speed;

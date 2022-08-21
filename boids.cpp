@@ -14,7 +14,7 @@ bool operator!=(Boid const& boid1, Boid const& boid2) {
 
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options,
              double alpha)
-    : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {}; //should check values
+    : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {} //should check values
 //Flock::Flock(Flock const& f) : boids_{flock.boids_} {} ??
 int Flock::size() const { return boids_.size(); }
 std::vector<Boid> Flock::get_boids() const { return boids_; }
@@ -38,7 +38,7 @@ void Flock::evolve(Ambient amb, double delta_t) {
         (separation(*this, boid_copied, view_neighbours(*this, boid_copied)) +
          alignment(*this, boid_copied, view_neighbours(*this, boid_copied)) +
          cohesion(*this, boid_copied, view_neighbours(*this, boid_copied)));
-    //boid.velocity = air_resistance(*this, boid_copied);
+    boid.velocity = air_resistance(*this, boid);
     boid.position += (boid_copied.velocity * delta_t);
     //if (out_of_borders(amb, boid) == true) 
     boids_[i] = avoid_boundaries(amb, boid);

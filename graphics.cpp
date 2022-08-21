@@ -20,11 +20,12 @@ auto evolve(Ambient amb, Flock& flock, int steps_per_evolution,
 }
 
 int main(int argc, char* argv[]) {
+  /*
   std::ofstream fos;     // file output stream
   fos.open("data.txt");  // statistics printed here, to be used on root
-
+*/
   // random boid generation
-  int N = 5;
+  int N = 15;
   std::default_random_engine gen;
 
   std::normal_distribution<double> Vx(1, 0.05);
@@ -43,8 +44,8 @@ int main(int argc, char* argv[]) {
     pos_y.push_back(Xy(gen));
   }
   std::vector<Boid> empty{};
-  Options sp{3, 0.4, 0.9, 0.9, 0.5};
-  Flock f{empty, sp, 180};
+  Options sp{3, 0.4, 0.5, 0.4, 0.5};
+  Flock f{empty, sp, 45};
   for (int i = 0.; i != N; ++i) {
     Boid b{Vector{pos_x[i], pos_y[i]}, Vector{vel_x[i], vel_y[i]}};
     f.add(b);
@@ -73,7 +74,7 @@ int main(int argc, char* argv[]) {
   int const fps = 30;
   int const steps_per_evolution{1000 / fps};
 
-  double time_count = 0.;
+  //double time_count = 0.;
 
   unsigned const display_width = 0.7 * sf::VideoMode::getDesktopMode().width;
   unsigned const display_height = 0.7 * sf::VideoMode::getDesktopMode().height;
@@ -124,9 +125,11 @@ int main(int argc, char* argv[]) {
     }*/
 
     window.display();
+    /*
     time_count += delta_t.asSeconds();
     fos <<  time_count << '\t' << (velocity_parameters(f)).x() << '\t' << (distance_parameters(f)).x()
         << '\n';
+    */
   }
   return 0;
 }
