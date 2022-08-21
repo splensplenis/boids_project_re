@@ -9,6 +9,11 @@
 
 #include "vector.hpp"
 
+struct Ambient {
+  Vector top_left_corner{};
+  Vector bottom_right_corner{};
+}
+
 struct Boid {
   Vector position{};
   Vector velocity{};
@@ -22,27 +27,26 @@ struct Options {
   double separation;
   double alignment;
   double cohesion;
-  // double alpha;  // in degrees
 };
 
 class Flock {
   std::vector<Boid> boids_{};
-  Options boids_options_{};  // lo crei come cin con limitazione di range dei
-                             // valori 0,1
-  double alpha_;
+  Options boids_options_{};
+  double alpha_{180};
 
  public:
   Flock(std::vector<Boid> const&, Options const&, double);
-  Flock(Flock const&);
+  //Flock(Flock const&);
   int size() const;
   std::vector<Boid> get_boids() const;
   Options get_options() const;
   double get_alpha() const;
   void add(Boid const&);
-  void evolve(double);
+  //operator[] () { return flock_[]; }
+  void evolve(Ambient, double);
 };
 
-/*
+/* -> see "rules.hpp"
 double distance(Boid const&, Boid const&);
 double speed(Boid const&);
 Vector applied_distance(Boid const&, Boid const&);

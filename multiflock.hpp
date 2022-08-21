@@ -10,11 +10,22 @@ class MultiFlock {
   MultiFlock(std::vector<Flock> const&);
   int size() const;
   std::vector<Flock> get_flocks() const;
+  //std::vector<Boid> get_all_boids() const;
   void evolve(double delta_t);
 };
 MultiFlock::MultiFlock(std::vector<Flock> const& flocks) : flocks_{flocks} {}
 int MultiFlock::size() const { return flocks_.size(); }
 std::vector<Flock> MultiFlock::get_flocks() const { return flocks_; }
+/*std::vector<Boid> MultiFlock::get_all_boids() const {
+  std::vector<Boid> all_boids{};
+  for (int i{}; i != this->size(); ++i) {
+    auto each_flock = flocks_[i].get_boids();
+    for (int j{}; j != (flocks_[i]).size(); ++j) {
+      all_boids.push_back(each_flock[j]);
+    }
+  }
+  return all_boids;
+}*/
 inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
                                        Boid const& boid) {
   std::vector<Boid> other_boids{};

@@ -141,5 +141,43 @@ inline Vector velocity_parameters(Flock flock) {
   return Vector{mean_speed, stddev_speed};
 }
 // COMPORTAMENTO AI BORDI
+inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
+  // should use bool out_of_borders?
+  if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
+    Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
+    // in realtà anche y non è quella...approssimazione
+    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
+    return Boid{v1, v2};
+  }
+  if ((boid.position).y() > (ambient.bottom_right_corner).y()) {
+    Vector v1{(boid.position).x(), (ambient.bottom_right_corner).y()};
+    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
+    return Boid{v1, v2};
+  }
+  if ((boid.position).x() < (ambient.top_left_corner).x()) {
+    Vector v1{(ambient.top_left_corner).x(), (boid.position).y()};
+    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
+    return Boid{v1, v2};
+  }
+  if ((boid.position).y() < (ambient.top_left_corner).y()) {
+    Vector v1{(boid.position).x(), (ambient.top_left_corner).y()};
+    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
+    return Boid{v1, v2};
+  } else {
+    return boid;
+  }
+}
 
+inline Vector air_resistance(Flock flock, Boid& boid) {
+  double max_speed = 2.; //should not use hard-coded numbers!
+  // double max_speed = velocity_parameters(flock).x() + 3 * velocity_parameters(flock).y();
+  // double min_speed = velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();
+  if ( speed(boid) > max_speed) {
+    boid.velocity /= speed (boid);
+    boid.velocity *= max_speed;
+    return boid.velocity;
+  }
+  // should handle the case with min_speed?
+  else { return boid.velocity; }
+}
 #endif
