@@ -8,15 +8,16 @@
 
 #include "boids.hpp"
 #include "rules.hpp"
+#include "multiflock.hpp"
 
-auto evolve(Ambient amb, Flock& flock, int steps_per_evolution,
+auto evolve(Ambient amb, MultiFlock& more_flock, int steps_per_evolution,
             sf::Time delta_t) {
   double const dt{delta_t.asSeconds()};
 
   for (int i{0}; i != steps_per_evolution; ++i) {
-    flock.evolve(amb, dt);
+    more_flock.evolve(amb, dt);
   }
-  return flock.get_boids();
+  return more_flock.get_all_boids();
 }
 
 // boid random generation
@@ -55,7 +56,7 @@ void write_to_file(std::vector<Vector> info_position, std::vector<Vector> info_v
   }
 }
 
-void graphics_simulation(Flock& f, std::vector<Vector> info_position,
+void graphics_simulation(MultiFlock& more_flock, std::vector<Vector> info_position,
                          std::vector<Vector> info_velocity, std::vector<double> info_time) {
   double time_count{};
 
@@ -94,7 +95,7 @@ void graphics_simulation(Flock& f, std::vector<Vector> info_position,
     window.clear(sf::Color::White);
 
     auto const flock_vector =
-        evolve(boundaries, f, steps_per_evolution, delta_t);
+        evolve(boundaries, more_flock, steps_per_evolution, delta_t);
 
     for (auto& boid : flock_vector) {
       sprite.setPosition((boid.position).x() * scale_x,
@@ -104,14 +105,18 @@ void graphics_simulation(Flock& f, std::vector<Vector> info_position,
 
     window.display();
 
+    if(more_flock.size() == 1) {
+    auto f = (more_flock.get_flocks())[0];
     info_position.push_back(distance_parameters(f));
     info_velocity.push_back(velocity_parameters(f));
+    }
 
     time_count += delta_t.asSeconds();
     info_time.push_back(time_count);
   }
 }
 
+///*
 int main() {
   //Options sp{3, 0.4, 0.5, 0.4, 0.5};
   std::cout << "------Boid simulation-------" <<'\n'
@@ -139,10 +144,34 @@ int main() {
   std::vector<Vector> info_position{};
   std::vector<Vector> info_velocity{};
   std::vector<double> info_time{};
-  graphics_simulation(flock, info_position, info_velocity, info_time);
+  graphics_simulation(flock, info_position, info_velocity, info_time); //this needs a multiflock
   if (choice == 'Y') {
     write_to_file(info_position, info_velocity, info_time);
     std::cout << "File data.txt was filled with info about the simulation" <<'\n';
   }
   return 0;
 }
+//*/
+//main alternativo per piccola prova grafica
+/*int main() {
+  std::vector<Vector> you;
+  std::vector<Vector> are;
+  std::vector<double> useless;
+Boid b1{Vector{1, 1}, Vector{0, 0}};
+Boid b2{Vector{5, 5}, Vector{0, 0}};
+Boid b3{Vector{10, 10}, Vector{0, 0}};
+Boid b4{Vector{10, 0}, Vector{0, 0}};
+
+Boid b5{Vector{8, 7}, Vector{0, 0}};
+Boid b6{Vector{2, 3}, Vector{0, 0}};
+Boid b7{Vector{4, 4}, Vector{0, 0}};
+Boid b8{Vector{1.6, 3.8}, Vector{0, 0}};
+
+Options sp{10., 0.6, 0.4, 0.1, 0.2};
+
+Flock f1{std::vector<Boid>{b1, b2, b3, b4}, sp, 45};
+Flock f2{std::vector<Boid>{b5, b6, b7, b8}, sp, 45};
+MultiFlock m{std::vector<Flock>{f1,f2}};
+graphics_simulation(m, you, are, useless);
+}
+*/

@@ -34,10 +34,12 @@ void Flock::evolve(Ambient amb, double delta_t) {
          alignment(*this, boid_copied, get_neighbours_of(*this, boid_copied)) +
          cohesion(*this, boid_copied, get_neighbours_of(*this, boid_copied)));
     */
+    ///*
     boid.velocity += 
         (separation(*this, boid_copied, view_neighbours(*this, boid_copied)) +
          alignment(*this, boid_copied, view_neighbours(*this, boid_copied)) +
          cohesion(*this, boid_copied, view_neighbours(*this, boid_copied)));
+    //*/
     boid.velocity = air_resistance(*this, boid);
     boid.position += (boid_copied.velocity * delta_t);
     //if (out_of_borders(amb, boid) == true) 
