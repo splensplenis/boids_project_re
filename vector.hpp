@@ -3,21 +3,23 @@
 
 #include <cassert>
 
-// using Coord = double; //type alias
-class Vector {
-  double x_{};
-  double y_{};
+//using Coord = double; //type alias
+class Vector{
+    double x_{};
+    double y_{};
 
- public:
-  Vector();
-  Vector(double, double);
-  void print();
-  double x() const;
-  double y() const;
-  Vector& operator+=(Vector const&);
-  Vector& operator*=(double);
-  Vector& operator-=(Vector const&);
-  Vector& operator/=(double);
+    public:
+    Vector();
+    Vector(double, double);
+    //Vector(Vector); by deafult?
+    //Vector(-Vector); should define -Vector?
+    void print();
+    double x() const;
+    double y() const;
+    Vector& operator+=(Vector const&); 
+    Vector& operator*=(double);  
+    Vector& operator-=(Vector const&);
+    Vector& operator/=(double);
 };
 
 Vector operator+(Vector const&, Vector const&);

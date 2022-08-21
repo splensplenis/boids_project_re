@@ -3,13 +3,15 @@
 #include <cmath>
 #include <iostream>
 
-Vector::Vector() : x_{}, y_{} {};
-Vector::Vector(double x = 0., double y = 0.) : x_{x}, y_{y} {};
+Vector::Vector() : x_{}, y_{} {}
+Vector::Vector(double x = 0., double y = 0.)
+: x_{x}, y_{y} {}
 
 double Vector::x() const { return x_; }
 double Vector::y() const { return y_; }
 
-void Vector::print() { std::cout << "(" << x_ << "," << y_ << ")" << '\n'; }
+void Vector::print() {
+    std::cout << "(" << x_ << "," << y_ << ")" <<'\n'; }
 
 Vector& Vector::operator+=(Vector const& other) {
   x_ += other.x_;
