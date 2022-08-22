@@ -18,8 +18,7 @@ inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
-inline bool are_neighbours(Flock flock /*Options*/, Boid const& boid1, Boid const& boid2) {
-  auto boids_options = flock.get_options();
+inline bool are_neighbours(Options const& boids_options, Boid const& boid1, Boid const& boid2) {
   return (distance(boid1, boid2) <= boids_options.distance);
 }
 inline bool is_member(Flock const& flock, Boid const& boid) {
@@ -32,12 +31,13 @@ inline bool is_member(Flock const& flock, Boid const& boid) {
 }
 inline std::vector<Boid> get_neighbours_of(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
+  auto boids_options = flock.get_options();
   /*if (is_member(flock, boid) == false) {
     throw std::runtime_error{"Boid is not in the flock"};
   }*/
   std::vector<Boid> neighbours{};
   for (double i{}; i != flock.size(); ++i) {
-    if ((boids[i]) != boid && are_neighbours(flock, boid, boids[i])) {
+    if ((boids[i]) != boid && are_neighbours(boids_options, boid, boids[i])) {
       neighbours.push_back(boids[i]);
     }
   }
