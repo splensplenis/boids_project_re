@@ -29,7 +29,7 @@ inline bool is_member(Flock const& flock, Boid const& boid) {
   }
   return false;
 }
-inline std::vector<Boid> get_neighbours_of(Flock flock, Boid const& boid) {
+inline std::vector<Boid> get_neighbours_of(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   auto boids_options = flock.get_options();
   /*if (is_member(flock, boid) == false) {
@@ -43,7 +43,7 @@ inline std::vector<Boid> get_neighbours_of(Flock flock, Boid const& boid) {
   }
   return neighbours;
 }
-inline std::vector<Boid> view_neighbours(Flock flock, Boid const& boid) {
+inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   // auto boids_options = flock.get_options();
   double pi = std::acos(-1.0);
@@ -66,12 +66,12 @@ inline Vector separation(Options const& boids_options, Boid const& boid,
                          std::vector<Boid> neighbours) {
   Vector partial_sum{};
   std::for_each(neighbours.begin(), neighbours.end(), [&](Boid const& boid1) {
-    if (distance(boid1, boid) <= boids_options.separation_distance) {
+    if (distance(boid1, boid) <= boid_options.separation_distance) {
       partial_sum += applied_distance(boid, boid1);
     }
   });
-  Vector v1_corr = partial_sum * (-boids_options.separation);
-  return v1_corr;
+  Vector corrected_velocity = partial_sum * (-boid_options.separation);
+  return corrected_velocity;
 }
 inline Vector alignment(Options const& boids_options, Boid const& boid,
                         std::vector<Boid> neighbours) {
@@ -79,9 +79,9 @@ inline Vector alignment(Options const& boids_options, Boid const& boid,
     Vector sum_velocity{};
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { sum_velocity += boid1.velocity; });
-    Vector v2_corr = (sum_velocity / neighbours.size() - boid.velocity) *
-                     boids_options.alignment;
-    return v2_corr;
+    Vector corrected_velocity = (sum_velocity / neighbours.size() - boid.velocity) *
+                     boid_options.alignment;
+    return corrected_velocity;
   } else {
     return Vector{0, 0};
   }
@@ -93,8 +93,8 @@ inline Vector cohesion(Options const& boids_options, Boid const& boid,
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { partial_sum += boid1.position; });
     Vector centre_of_mass = partial_sum / neighbours.size();
-    Vector v3_corr = (centre_of_mass - boid.position) * boids_options.cohesion;
-    return v3_corr;
+    Vector corrected_velocity = (centre_of_mass - boid.position) * boid_options.cohesion;
+    return corrected_velocity;
   } else {
     return Vector{0, 0};
   }
@@ -123,7 +123,7 @@ inline Vector distance_parameters(Flock const& flock) {
   double stddev_distance = partial_sum / (flock.size() - 1);
   return Vector{mean_distance, stddev_distance};
 }
-inline Vector velocity_parameters(Flock const& flock) {
+inline Vector velocity_parameters(Flock const& const& flock) {
   std::vector<double> speed_histo{};
   double partial_sum{};
   double partial_sum2{};
