@@ -62,7 +62,7 @@ inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   }
   return view_neighbours;
 }
-inline Vector separation(Options const& boids_options, Boid const& boid,
+inline Vector separation(Options const& boid_options, Boid const& boid,
                          std::vector<Boid> neighbours) {
   Vector partial_sum{};
   std::for_each(neighbours.begin(), neighbours.end(), [&](Boid const& boid1) {
@@ -73,7 +73,7 @@ inline Vector separation(Options const& boids_options, Boid const& boid,
   Vector corrected_velocity = partial_sum * (-boid_options.separation);
   return corrected_velocity;
 }
-inline Vector alignment(Options const& boids_options, Boid const& boid,
+inline Vector alignment(Options const& boid_options, Boid const& boid,
                         std::vector<Boid> neighbours) {
   if (neighbours.size() != 0) {
     Vector sum_velocity{};
@@ -86,7 +86,7 @@ inline Vector alignment(Options const& boids_options, Boid const& boid,
     return Vector{0, 0};
   }
 }
-inline Vector cohesion(Options const& boids_options, Boid const& boid,
+inline Vector cohesion(Options const& boid_options, Boid const& boid,
                        std::vector<Boid> neighbours) {
   if (neighbours.size() != 0) {
     Vector partial_sum{};
@@ -123,7 +123,7 @@ inline Vector distance_parameters(Flock const& flock) {
   double stddev_distance = partial_sum / (flock.size() - 1);
   return Vector{mean_distance, stddev_distance};
 }
-inline Vector velocity_parameters(Flock const& const& flock) {
+inline Vector velocity_parameters(Flock const& flock) {
   std::vector<double> speed_histo{};
   double partial_sum{};
   double partial_sum2{};
