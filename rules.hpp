@@ -22,7 +22,7 @@ inline bool are_neighbours(Flock flock /*Options*/, Boid const& boid1, Boid cons
   auto boids_options = flock.get_options();
   return (distance(boid1, boid2) <= boids_options.distance);
 }
-inline bool is_member(Flock /*const&*/ flock, Boid const& boid) {
+inline bool is_member(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   auto member = std::find(boids.begin(), boids.end(), boid);
   if (member != boids.end()) {
@@ -30,7 +30,7 @@ inline bool is_member(Flock /*const&*/ flock, Boid const& boid) {
   }
   return false;
 }
-inline std::vector<Boid> get_neighbours_of(Flock flock, Boid const& boid) {
+inline std::vector<Boid> get_neighbours_of(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   /*if (is_member(flock, boid) == false) {
     throw std::runtime_error{"Boid is not in the flock"};
@@ -43,7 +43,7 @@ inline std::vector<Boid> get_neighbours_of(Flock flock, Boid const& boid) {
   }
   return neighbours;
 }
-inline std::vector<Boid> view_neighbours(Flock flock, Boid const& boid) {
+inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   // auto boids_options = flock.get_options();
   double pi = std::acos(-1.0);
@@ -62,50 +62,44 @@ inline std::vector<Boid> view_neighbours(Flock flock, Boid const& boid) {
   }
   return view_neighbours;
 }
-inline Vector separation(Flock /*Options*/ flock, Boid const& boid,
+inline Vector separation(Options const& boid_options, Boid const& boid,
                          std::vector<Boid> neighbours) {
-  // auto flock = f.get_flock();
-  auto boids_options = flock.get_options();
   Vector partial_sum{};
   std::for_each(neighbours.begin(), neighbours.end(), [&](Boid const& boid1) {
-    if (distance(boid1, boid) <= boids_options.separation_distance) {
+    if (distance(boid1, boid) <= boid_options.separation_distance) {
       partial_sum += applied_distance(boid, boid1);
     }
   });
-  Vector v1_corr = partial_sum * (-boids_options.separation);
-  return v1_corr;
+  Vector corrected_velocity = partial_sum * (-boid_options.separation);
+  return corrected_velocity;
 }
-inline Vector alignment(Flock flock, Boid const& boid,
+inline Vector alignment(Options const& boid_options, Boid const& boid,
                         std::vector<Boid> neighbours) {
   if (neighbours.size() != 0) {
-    // auto flock = f.get_flock();
-    auto boids_options = flock.get_options();
     Vector sum_velocity{};
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { sum_velocity += boid1.velocity; });
-    Vector v2_corr = (sum_velocity / neighbours.size() - boid.velocity) *
-                     boids_options.alignment;
-    return v2_corr;
+    Vector corrected_velocity = (sum_velocity / neighbours.size() - boid.velocity) *
+                     boid_options.alignment;
+    return corrected_velocity;
   } else {
     return Vector{0, 0};
   }
 }
-inline Vector cohesion(Flock flock, Boid const& boid,
+inline Vector cohesion(Options const& boid_options, Boid const& boid,
                        std::vector<Boid> neighbours) {
   if (neighbours.size() != 0) {
-    // auto flock = f.get_flock();
-    auto boids_options = flock.get_options();
     Vector partial_sum{};
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { partial_sum += boid1.position; });
     Vector centre_of_mass = partial_sum / neighbours.size();
-    Vector v3_corr = (centre_of_mass - boid.position) * boids_options.cohesion;
-    return v3_corr;
+    Vector corrected_velocity = (centre_of_mass - boid.position) * boid_options.cohesion;
+    return corrected_velocity;
   } else {
     return Vector{0, 0};
   }
 }
-inline Vector distance_parameters(Flock /*const&*/ flock) {
+inline Vector distance_parameters(Flock const& flock) {
   // filling a histogram with distances between all boids of the flock
   // then calculating its mean and standard deviation for a given time
   std::vector<double> dist_histo{};
@@ -129,7 +123,7 @@ inline Vector distance_parameters(Flock /*const&*/ flock) {
   double stddev_distance = partial_sum / (flock.size() - 1);
   return Vector{mean_distance, stddev_distance};
 }
-inline Vector velocity_parameters(Flock flock) {
+inline Vector velocity_parameters(Flock const& flock) {
   std::vector<double> speed_histo{};
   double partial_sum{};
   double partial_sum2{};
@@ -161,7 +155,7 @@ inline bool out_of_borders(Ambient ambient, Boid& boid) {
 }
 */
 
-inline void avoid_boundaries(Ambient ambient, Boid& boid) {
+inline void avoid_boundaries(Ambient const& ambient, Boid& boid) {
   if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
     Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
     // in realtà anche y non è quella...approssimazione
@@ -189,7 +183,7 @@ inline void avoid_boundaries(Ambient ambient, Boid& boid) {
   }
 }
 
-inline Vector air_resistance(Flock flock, Boid& boid) { //velocity
+inline Vector air_resistance(Flock const& flock, Boid& boid) { //velocity
   double max_speed = 8.; //should not use hard-coded numbers!
   // double max_speed = velocity_parameters(flock).x() + 3 * velocity_parameters(flock).y();
   // double min_speed = velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();
