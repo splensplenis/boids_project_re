@@ -1,1 +1,0 @@
-g++ -Wall -Wextra -fsanitize=address base.cpp libraries/imgui/imgui.cpp libraries/imgui/imgui_draw.cpp libraries/imgui/imgui_widgets.cpp libraries/imgui-sfml/imgui-SFML.cpp libraries/imgui/imgui_tables.cpp libraries/implot/implot.cpp libraries/implot/implot_items.cpp -lGL -lsfml-graphics -lsfml-window -lsfml-system
