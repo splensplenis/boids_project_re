@@ -32,7 +32,7 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   auto flocks = multiflocks.get_flocks();
   double alpha;
   Options boid_options;
-  for (int i; i != flocks.size() - 1; ++i) {  // VA MESSO SIZE-1 NEI VETTORI??
+  for (int i; i != multiflocks.size(); ++i) { 
     auto flock_i = flocks[i].get_boids();
     auto member =
         std::find(flock_i.begin(), flock_i.end(), boid);  // con find_if?
@@ -51,12 +51,11 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   return other_neighbours;
 }  // cosi ho tutti ii vicini entro una certa distanza
 void MultiFlock::evolve(Ambient amb, double delta_t) {
-  /*
+   /*
   for(int i{}; i != this->size(); ++i) {
     flocks_[i].evolve(amb, delta_t);
   } //easy version, to see if it's woring
-  */
-  /* this gives segmentation faults
+*/
   for (int i; i != this->size(); ++i) {
     Flock flock_i = flocks_[i];
     auto boids_i = flock_i.get_boids();
@@ -66,11 +65,13 @@ void MultiFlock::evolve(Ambient amb, double delta_t) {
       auto boid_copied = copy[j];
       std::vector<Boid> other_neighbours = get_other_neighbours(*this, boid);
       boid.velocity += separation(flock_i, boid_copied, other_neighbours);
+      other_neighbours.clear();
+      boids_i[i] = boid; //j?
     }
     flock_i.evolve(amb, delta_t);
   }
-  */
-  /* this gives segmentation faults as well 
+  
+    /* this gives segmentation faults as well 
   Options options =
       flocks_[0].get_options();  // sono uguali per tutti, prendo dal primo
   double angle = flocks_[0].get_alpha();  // angolo è diverso, come fare??
