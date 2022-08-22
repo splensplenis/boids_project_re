@@ -32,9 +32,9 @@ inline bool is_member(Flock /*const&*/ flock, Boid const& boid) {
 }
 inline std::vector<Boid> get_neighbours_of(Flock flock, Boid const& boid) {
   auto boids = flock.get_boids();
-  if (is_member(flock, boid) == false) {
+  /*if (is_member(flock, boid) == false) {
     throw std::runtime_error{"Boid is not in the flock"};
-  }
+  }*/
   std::vector<Boid> neighbours{};
   for (double i{}; i != flock.size(); ++i) {
     if ((boids[i]) != boid && are_neighbours(flock, boid, boids[i])) {
