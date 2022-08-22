@@ -10,7 +10,7 @@
 #include "multiflock.hpp"
 #include "rules.hpp"
 
-auto evolve(Ambient amb, MultiFlock& more_flock, int steps_per_evolution,
+auto evolve(Ambient const& amb, MultiFlock& more_flock, int steps_per_evolution,
             sf::Time delta_t) {
   double const dt{delta_t.asSeconds()};
 
@@ -21,8 +21,14 @@ auto evolve(Ambient amb, MultiFlock& more_flock, int steps_per_evolution,
 }
 
 // boid random generation
-Flock generate_flock(int N, Options sp, double angle) {
+//è effettivamente indipendente dalla grafica, 
+//si può mettere da un'altra parte: unico problema
+//è che i valori hardcoded dipendono dalla grandezza dello schermo
+//gli facciamo prendere un Ambient come argomento?
+Flock generate_flock(int N, Options const& sp, double angle) {
   std::default_random_engine gen;
+  //should generate more flocks randomly
+  //this way it only generates the same random flock again and again
 
   std::normal_distribution<double> Vx(1, 0.05);
   std::normal_distribution<double> Vy(0.5, 0.03);
@@ -48,6 +54,7 @@ Flock generate_flock(int N, Options sp, double angle) {
   return f;
 }
 
+//anche questo non c'entra con la grafica ma è un'opzione in più da aggiungere nel main
 void write_to_file(std::vector<Vector> info_position,
                    std::vector<Vector> info_velocity,
                    std::vector<double> info_time) {
@@ -91,6 +98,7 @@ void graphics_simulation(MultiFlock& more_flock,
   }
   sf::Sprite sprite{};
   sprite.setTexture(texture);
+  //should use texture.getSize() to initialiase d_s (covolume)?
 
   while (window.isOpen()) {
     sf::Event event;
@@ -111,20 +119,24 @@ void graphics_simulation(MultiFlock& more_flock,
 
     window.display();
 
+//qui come facciamo? write to file ha senso solo e ho due/tre colonne
+//così posso farci un TGraph su root,
+//forse Fabio ha delle tabelle dove da i valori in ouput per vari flock
+//quindi nel caso questo farà lui
     if (more_flock.size() == 1) {
       auto f = (more_flock.get_flocks())[0];
       info_position.push_back(distance_parameters(f));
       info_velocity.push_back(velocity_parameters(f));
     }
+    //e se ho più flock? come cambiano info_position e info_velocity?
 
     time_count += delta_t.asSeconds();
     info_time.push_back(time_count);
   }
 }
 
-///*
 int main() {
-  // Options sp{3, 0.4, 0.5, 0.4, 0.5};
+  //Options simulation_options{3, 0.4, 0.5, 0.4, 0.5};
   std::cout << "------Boid simulation-------" << '\n'
             << "Plase enter values for simulation parameters:" << '\n'
             << "Number of boids for each flock (default value = 15):" << '\n'
@@ -133,7 +145,6 @@ int main() {
             << "Separation rule (default value = 0.5):" << '\n'
             << "Alignment rule (default value = 0.4):" << '\n'
             << "Cohesion rule (default value = 0.5):" << '\n';
-  // angle of view (180° by default where to be chosen?)
   double angle{180};
   int N;
   double d;
@@ -160,43 +171,21 @@ int main() {
   Boid b7{Vector{4, 4}, Vector{2.4, 9.5}};
   Boid b8{Vector{1.6, 3.8}, Vector{1.2, 1}};
 
-  Flock f1{std::vector<Boid>{b1, b2, b3, b4}, simulation_options, 180};
-  Flock f2{std::vector<Boid>{b5, b6, b7, b8}, simulation_options, 180};
+  Flock f1{std::vector<Boid>{b1, b2, b3, b4}, simulation_options, angle}; 
+  //if this construct works the angle is 180
+  Flock f2{std::vector<Boid>{b5, b6, b7, b8}, simulation_options, angle};
 
-  MultiFlock multiflock{std::vector<Flock>{/*flock1,*/ f1, f2}};
+  MultiFlock multiflock{std::vector<Flock>{flock1, f1, f2}};
   std::vector<Vector> info_position{};
   std::vector<Vector> info_velocity{};
   std::vector<double> info_time{};
   graphics_simulation(multiflock, info_position, info_velocity,
-                      info_time);  // this needs a multiflock
-  if (choice == 'Y') {
+                      info_time); 
+  if (choice == 'Y' && multiflock.size() == 1) {
+    //again, what to print if i have many flocks?
     write_to_file(info_position, info_velocity, info_time);
     std::cout << "File data.txt was filled with info about the simulation"
               << '\n';
   }
   return 0;
 }
-//*/
-// main alternativo per piccola prova grafica
-/*int main() {
-  std::vector<Vector> you;
-  std::vector<Vector> are;
-  std::vector<double> useless;
-Boid b1{Vector{1, 1}, Vector{0, 0}};
-Boid b2{Vector{5, 5}, Vector{0, 0}};
-Boid b3{Vector{10, 10}, Vector{0, 0}};
-Boid b4{Vector{10, 0}, Vector{0, 0}};
-
-Boid b5{Vector{8, 7}, Vector{0, 0}};
-Boid b6{Vector{2, 3}, Vector{0, 0}};
-Boid b7{Vector{4, 4}, Vector{0, 0}};
-Boid b8{Vector{1.6, 3.8}, Vector{0, 0}};
-
-Options sp{10., 0.6, 0.4, 0.1, 0.2};
-
-Flock f1{std::vector<Boid>{b1, b2, b3, b4}, sp, 45};
-Flock f2{std::vector<Boid>{b5, b6, b7, b8}, sp, 45};
-MultiFlock m{std::vector<Flock>{f1,f2}};
-graphics_simulation(m, you, are, useless);
-}
-*/

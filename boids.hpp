@@ -37,13 +37,11 @@ class Flock {
 
  public:
   Flock(std::vector<Boid> const&, Options const&, double);
-  // Flock(Flock const&);
   int size() const;
   std::vector<Boid> get_boids() const;
   Options get_options() const;
   double get_alpha() const;
   void add(Boid const&);
-  // operator[] () { return flock_[];}
   void evolve(Ambient const&, double);
 };
 
