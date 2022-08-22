@@ -64,7 +64,8 @@ void MultiFlock::evolve(Ambient const& amb, double delta_t) {
       auto boid = boids_i[j];
       auto boid_copied = copy[j];
       std::vector<Boid> other_neighbours = get_other_neighbours(*this, boid);
-      boid.velocity += separation(flock_i, boid_copied, other_neighbours);
+      Options boid_options = flock_i.get_options();
+      boid.velocity += separation(boid_options, boid_copied, other_neighbours);
       other_neighbours.clear();
       boids_i[j] = boid; 
     }
