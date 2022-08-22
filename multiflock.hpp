@@ -11,7 +11,7 @@ class MultiFlock {
   int size() const;
   std::vector<Flock> get_flocks() const;
   std::vector<Boid> get_all_boids() const;
-  void evolve(Ambient amb, double delta_t);
+  void evolve(Ambient const& amb, double delta_t);
 };
 MultiFlock::MultiFlock(std::vector<Flock> const& flocks) : flocks_{flocks} {}
 int MultiFlock::size() const { return flocks_.size(); }
@@ -35,7 +35,7 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   for (int i; i != multiflocks.size(); ++i) { 
     auto flock_i = flocks[i].get_boids();
     auto member =
-        std::find(flock_i.begin(), flock_i.end(), boid);  // con find_if?
+        std::find(flock_i.begin(), flock_i.end(), boid); //find_if?
     if (member == flock_i.end()) {
       std::copy(flock_i.begin(), flock_i.end(),
                 std::back_inserter(other_boids));
@@ -50,7 +50,7 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   other_neighbours = get_neighbours_of(other_boids_flock, boid);
   return other_neighbours;
 }  // cosi ho tutti ii vicini entro una certa distanza
-void MultiFlock::evolve(Ambient amb, double delta_t) {
+void MultiFlock::evolve(Ambient const& amb, double delta_t) {
    /*
   for(int i{}; i != this->size(); ++i) {
     flocks_[i].evolve(amb, delta_t);
@@ -60,13 +60,13 @@ void MultiFlock::evolve(Ambient amb, double delta_t) {
     Flock flock_i = flocks_[i];
     auto boids_i = flock_i.get_boids();
     std::vector<Boid> copy{boids_i};
-    for (int j; j != flocks_[i].size(); ++j) {
+    for (int j; j != flock_i.size(); ++j) {
       auto boid = boids_i[j];
       auto boid_copied = copy[j];
       std::vector<Boid> other_neighbours = get_other_neighbours(*this, boid);
       boid.velocity += separation(flock_i, boid_copied, other_neighbours);
       other_neighbours.clear();
-      boids_i[i] = boid; //j?
+      boids_i[j] = boid; 
     }
     flock_i.evolve(amb, delta_t);
   }

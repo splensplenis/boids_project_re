@@ -13,15 +13,14 @@ bool operator!=(Boid const& boid1, Boid const& boid2) {
 }
 
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options,
-             double alpha)
+             double alpha = 180.)
     : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {} //should check values
-//Flock::Flock(Flock const& f) : boids_{flock.boids_} {} ??
 int Flock::size() const { return boids_.size(); }
 std::vector<Boid> Flock::get_boids() const { return boids_; }
 Options Flock::get_options() const { return boids_options_; }
 double Flock::get_alpha() const { return alpha_; }
-void Flock::add(Boid const& b1) { boids_.push_back(b1); }
-void Flock::evolve(Ambient amb, double delta_t) {
+void Flock::add(Boid const& boid) { boids_.push_back(boid); }
+void Flock::evolve(Ambient const& amb, double delta_t) {
   std::vector<Boid> copy{boids_};
   for (int i{}; i != this->size(); ++i) {
     // corrections read from copy (old state)
@@ -43,6 +42,7 @@ void Flock::evolve(Ambient amb, double delta_t) {
     boid.velocity = air_resistance(*this, boid);
     boid.position += (boid_copied.velocity * delta_t);
     //if (out_of_borders(amb, boid) == true) 
-    boids_[i] = avoid_boundaries(amb, boid);
+    avoid_boundaries(amb, boid);
+    boids_[i] = boid;
   }
 }
