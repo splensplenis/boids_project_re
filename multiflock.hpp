@@ -51,11 +51,11 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   return other_neighbours;
 }  // cosi ho tutti ii vicini entro una certa distanza
 void MultiFlock::evolve(Ambient amb, double delta_t) {
-  /*
+
   for(int i{}; i != this->size(); ++i) {
     flocks_[i].evolve(amb, delta_t);
   } //easy version, to see if it's woring
-  */
+
   /* this gives segmentation faults
   for (int i; i != this->size(); ++i) {
     Flock flock_i = flocks_[i];

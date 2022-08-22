@@ -128,7 +128,7 @@ int main() {
             << "Alignment rule (default value = 0.4):" <<'\n'
             << "Cohesion rule (default value = 0.5):" <<'\n';
   //angle of view (180° by default where to be chosen?)
-  double angle{180};
+  double angle{90};
   int N;
   double d;
   double d_s;
@@ -141,10 +141,11 @@ int main() {
   char choice;
   std::cin >> choice;
   Flock flock = generate_flock(N, simulation_options, angle);
+  MultiFlock multiflock{std::vector<Flock>{flock}};
   std::vector<Vector> info_position{};
   std::vector<Vector> info_velocity{};
   std::vector<double> info_time{};
-  graphics_simulation(flock, info_position, info_velocity, info_time); //this needs a multiflock
+  graphics_simulation(multiflock, info_position, info_velocity, info_time); //this needs a multiflock
   if (choice == 'Y') {
     write_to_file(info_position, info_velocity, info_time);
     std::cout << "File data.txt was filled with info about the simulation" <<'\n';

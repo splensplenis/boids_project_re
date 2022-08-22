@@ -188,12 +188,18 @@ inline Boid avoid_boundaries(Ambient ambient, Boid& boid) {
 }
 
 inline Vector air_resistance(Flock flock, Boid& boid) {
-  double max_speed = 2.; //should not use hard-coded numbers!
+  double max_speed = 10.; //should not use hard-coded numbers!
   // double max_speed = velocity_parameters(flock).x() + 3 * velocity_parameters(flock).y();
   // double min_speed = velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();
+  double min_speed = 2.;
   if ( speed(boid) > max_speed) {
-    boid.velocity /= speed (boid);
+    boid.velocity /= speed(boid);
     boid.velocity *= max_speed;
+    return boid.velocity;
+  }
+  if ( speed(boid) < min_speed ) {
+    boid.velocity /= speed(boid);
+    boid.velocity *= min_speed;
     return boid.velocity;
   }
   // should handle the case with min_speed?
