@@ -7,8 +7,8 @@
 #include <random>
 
 #include "boids.hpp"
-#include "rules.hpp"
 #include "multiflock.hpp"
+#include "rules.hpp"
 
 auto evolve(Ambient amb, MultiFlock& more_flock, int steps_per_evolution,
             sf::Time delta_t) {
@@ -48,29 +48,35 @@ Flock generate_flock(int N, Options sp, double angle) {
   return f;
 }
 
-void write_to_file(std::vector<Vector> info_position, std::vector<Vector> info_velocity, std::vector<double> info_time) {
+void write_to_file(std::vector<Vector> info_position,
+                   std::vector<Vector> info_velocity,
+                   std::vector<double> info_time) {
   std::ofstream fos;     // file output stream
-  fos.open("data.txt");  // statistics printed here, to be used on root to see a graph
+  fos.open("data.txt");  // statistics printed here, to be used on root to see a
+                         // graph
   for (int i = 0; i != info_time.size(); ++i) {
-    fos << info_time[i] <<'\t' << info_position[i].x() <<'\t' << info_velocity[i].x() <<'\n';
+    fos << info_time[i] << '\t' << info_position[i].x() << '\t'
+        << info_velocity[i].x() << '\n';
   }
 }
 
-void graphics_simulation(MultiFlock& more_flock, std::vector<Vector> info_position,
-                         std::vector<Vector> info_velocity, std::vector<double> info_time) {
+void graphics_simulation(MultiFlock& more_flock,
+                         std::vector<Vector> info_position,
+                         std::vector<Vector> info_velocity,
+                         std::vector<double> info_time) {
   double time_count{};
 
   auto const delta_t{sf::milliseconds(1)};
-  int const fps = 30;
+  int const fps = 60;
   int const steps_per_evolution{1000 / fps};
 
   unsigned const display_width = 0.7 * sf::VideoMode::getDesktopMode().width;
   unsigned const display_height = 0.7 * sf::VideoMode::getDesktopMode().height;
 
   auto const min_x{0.};
-  auto const max_x{10.1};
+  auto const max_x{8.};
   auto const min_y{0.};
-  auto const max_y{10.1};
+  auto const max_y{8.};
   auto const scale_x = display_width / (max_x - min_x);
   auto const scale_y = display_height / (max_y - min_y);
 
@@ -105,10 +111,10 @@ void graphics_simulation(MultiFlock& more_flock, std::vector<Vector> info_positi
 
     window.display();
 
-    if(more_flock.size() == 1) {
-    auto f = (more_flock.get_flocks())[0];
-    info_position.push_back(distance_parameters(f));
-    info_velocity.push_back(velocity_parameters(f));
+    if (more_flock.size() == 1) {
+      auto f = (more_flock.get_flocks())[0];
+      info_position.push_back(distance_parameters(f));
+      info_velocity.push_back(velocity_parameters(f));
     }
 
     time_count += delta_t.asSeconds();
@@ -118,17 +124,17 @@ void graphics_simulation(MultiFlock& more_flock, std::vector<Vector> info_positi
 
 ///*
 int main() {
-  //Options sp{3, 0.4, 0.5, 0.4, 0.5};
-  std::cout << "------Boid simulation-------" <<'\n'
-            << "Plase enter values for simulation parameters:" <<'\n'
-            << "Number of boids for each flock (default value = 15):" <<'\n'
-            << "Distance of neighbours (default value = 3):" <<'\n'
-            << "Distance of collision (default value = 0.4):" <<'\n'
+  // Options sp{3, 0.4, 0.5, 0.4, 0.5};
+  std::cout << "------Boid simulation-------" << '\n'
+            << "Plase enter values for simulation parameters:" << '\n'
+            << "Number of boids for each flock (default value = 15):" << '\n'
+            << "Distance of neighbours (default value = 3):" << '\n'
+            << "Distance of collision (default value = 0.4):" << '\n'
             << "Separation rule (default value = 0.5):" << '\n'
-            << "Alignment rule (default value = 0.4):" <<'\n'
-            << "Cohesion rule (default value = 0.5):" <<'\n';
-  //angle of view (180° by default where to be chosen?)
-  double angle{90};
+            << "Alignment rule (default value = 0.4):" << '\n'
+            << "Cohesion rule (default value = 0.5):" << '\n';
+  // angle of view (180° by default where to be chosen?)
+  double angle{180};
   int N;
   double d;
   double d_s;
@@ -136,24 +142,42 @@ int main() {
   double a;
   double c;
   std::cin >> N >> d >> d_s >> s >> a >> c;
-  Options simulation_options{d,d_s,s,a,c};
-  std::cout << "Do you want info about the simulation to be stored in a file data.txt? (Y/N)" <<'\n';
+  Options simulation_options{d, d_s, s, a, c};
+  std::cout << "Do you want info about the simulation to be stored in a file "
+               "data.txt? (Y/N)"
+            << '\n';
   char choice;
   std::cin >> choice;
-  Flock flock = generate_flock(N, simulation_options, angle);
-  MultiFlock multiflock{std::vector<Flock>{flock}};
+  Flock flock1 = generate_flock(N, simulation_options, angle);
+
+  Boid b1{Vector{1, 1}, Vector{1, 0}};
+  Boid b2{Vector{5, 5}, Vector{0, 1}};
+  Boid b3{Vector{10, 10}, Vector{2, 2}};
+  Boid b4{Vector{10, 0}, Vector{1.5, 9}};
+
+  Boid b5{Vector{8, 7}, Vector{0.3, 2}};
+  Boid b6{Vector{2, 3}, Vector{9.6, 4.5}};
+  Boid b7{Vector{4, 4}, Vector{2.4, 9.5}};
+  Boid b8{Vector{1.6, 3.8}, Vector{1.2, 1}};
+
+  Flock f1{std::vector<Boid>{b1, b2, b3, b4}, simulation_options, 180};
+  Flock f2{std::vector<Boid>{b5, b6, b7, b8}, simulation_options, 180};
+
+  MultiFlock multiflock{std::vector<Flock>{/*flock1,*/ f1, f2}};
   std::vector<Vector> info_position{};
   std::vector<Vector> info_velocity{};
   std::vector<double> info_time{};
-  graphics_simulation(multiflock, info_position, info_velocity, info_time); //this needs a multiflock
+  graphics_simulation(multiflock, info_position, info_velocity,
+                      info_time);  // this needs a multiflock
   if (choice == 'Y') {
     write_to_file(info_position, info_velocity, info_time);
-    std::cout << "File data.txt was filled with info about the simulation" <<'\n';
+    std::cout << "File data.txt was filled with info about the simulation"
+              << '\n';
   }
   return 0;
 }
 //*/
-//main alternativo per piccola prova grafica
+// main alternativo per piccola prova grafica
 /*int main() {
   std::vector<Vector> you;
   std::vector<Vector> are;

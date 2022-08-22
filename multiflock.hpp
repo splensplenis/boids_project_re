@@ -51,25 +51,25 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   return other_neighbours;
 }  // cosi ho tutti ii vicini entro una certa distanza
 void MultiFlock::evolve(Ambient amb, double delta_t) {
-
+/*
   for(int i{}; i != this->size(); ++i) {
     flocks_[i].evolve(amb, delta_t);
   } //easy version, to see if it's woring
-
-  /* this gives segmentation faults
+*/
   for (int i; i != this->size(); ++i) {
     Flock flock_i = flocks_[i];
     auto boids_i = flock_i.get_boids();
     std::vector<Boid> copy{boids_i};
-    for (int j; j != flocks_[i].size(); ++j) {
+    for (int j; j != flocks_[i].size() - 1; ++j) {
       auto boid = boids_i[j];
       auto boid_copied = copy[j];
       std::vector<Boid> other_neighbours = get_other_neighbours(*this, boid);
       boid.velocity += separation(flock_i, boid_copied, other_neighbours);
+      other_neighbours.clear();
     }
     flock_i.evolve(amb, delta_t);
   }
-  */
+  
   /* this gives segmentation faults as well 
   Options options =
       flocks_[0].get_options();  // sono uguali per tutti, prendo dal primo
