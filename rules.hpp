@@ -146,9 +146,9 @@ inline Vector velocity_parameters(Flock const& flock) {
 // lo si riporta al bordo con velocità opposta (come se avesse urtato)
 
 //funzione che allontana dal bordo con spinta opposta:
-inline void keep_centred(Ambient const& ambient, Boid& boid) {
+/*inline void keep_centred(Ambient const& ambient, Boid& boid) {
   //...
-}
+}*/
 
 inline void avoid_boundaries(Ambient const& ambient, Boid& boid) {
   if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
@@ -178,7 +178,7 @@ inline void avoid_boundaries(Ambient const& ambient, Boid& boid) {
   }
 }
 
-inline void speed_control(Flock const& flock, Boid& boid) {
+inline void speed_control(Boid& boid) { //Flock const& flock, 
   double max_speed = 8.; //should not use hard-coded numbers!
   // double max_speed = velocity_parameters(flock).x() + 3 * velocity_parameters(flock).y();
   // double min_speed = velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();

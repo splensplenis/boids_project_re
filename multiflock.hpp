@@ -50,6 +50,19 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   return other_neighbours;
 }  // cosi ho tutti ii vicini entro una certa distanza
 
+/*bool same_position(std::vector<Boid> boids) {
+  for(int i{}; i != boids.size(); ++i) {
+    for (int j{}; j!= boids.size(); ++j) {
+      if (i != j && boids[i].position == boids[j].position){
+        std::cout << "stessa posizione" << '\n'; 
+        return true;
+      }
+    }
+  }
+  return false;
+}
+*/
+
 void MultiFlock::evolve(Ambient const& amb, double delta_t) {
   /*
     for(int i{}; i != this->size(); ++i) {
@@ -71,6 +84,8 @@ void MultiFlock::evolve(Ambient const& amb, double delta_t) {
     }
     flock_i.evolve(amb, delta_t);
     flocks_[i] = flock_i;
+    //same_position(boids_i);
+    //std::cout << "ciao" << '\n';
   }
 }
 

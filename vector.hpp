@@ -10,7 +10,7 @@ class Vector{
 
     public:
     Vector();
-    Vector(double, double);
+    Vector(double, double);  //perché due tipi?
     //Vector(Vector); by deafult?
     //Vector(-Vector); should define -Vector?
     void print();
@@ -18,7 +18,7 @@ class Vector{
     double y() const;
     Vector& operator+=(Vector const&); 
     Vector& operator*=(double);  
-    Vector& operator-=(Vector const&);
+    Vector& operator-=(Vector const&); //non usato
     Vector& operator/=(double);
 };
 
