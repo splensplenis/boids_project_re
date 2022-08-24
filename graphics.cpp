@@ -129,6 +129,8 @@ void graphics_simulation(MultiFlock& more_flock,
 
     window.display();
 
+
+
     info_position.push_back(more_flock.get_all_distance_mean_RMS());
     info_velocity.push_back(more_flock.get_all_speed_mean_RMS());
 

@@ -1,6 +1,5 @@
 #include "vector.hpp"
 
-#include <cmath>
 #include <iostream>
 
 Vector::Vector() {}

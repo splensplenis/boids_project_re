@@ -3,7 +3,7 @@
 #include "vector.hpp"
 
 TEST_CASE("Testing Vectors") {
-  SUBCASE("Testing operator== and operator!=") {
+  SUBCASE("Testing == and !=") {
     Vector v1{1., 2.};
     Vector v2{3., 4.};
     Vector v3{1., 2.};
@@ -20,7 +20,7 @@ TEST_CASE("Testing Vectors") {
     CHECK(v1.x() == doctest::Approx(1.));
     CHECK(v1.y() == doctest::Approx(2.));
   }
-  SUBCASE("Testing operator+= and operator-=") {
+  SUBCASE("Testing += and -=") {
     Vector v1{1., 2.};
     Vector v2{3., 4.};
     Vector v3{4., 6.};
@@ -31,7 +31,7 @@ TEST_CASE("Testing Vectors") {
     CHECK(v2 == v4);
     CHECK_FALSE(v1 == v2);
   }
-  SUBCASE("Testing operator+ and operator-") {
+  SUBCASE("Testing + and -") {
     Vector v1{1., 2.};
     Vector v2{3., 4.};
     Vector v3 = v1 + v2;
@@ -41,7 +41,7 @@ TEST_CASE("Testing Vectors") {
     CHECK(v4.x() == doctest::Approx(-2.));
     CHECK(v4.y() == doctest::Approx(-2.));
   }
-  SUBCASE("Testing operator*= and operator/=") {
+  SUBCASE("Testing *= and /=") {
     Vector v1{1., 2.};
     double scalar = 2.;
     Vector v2{2., 4.};
@@ -54,7 +54,7 @@ TEST_CASE("Testing Vectors") {
     scalar = 0.;
     CHECK_THROWS(v1 /= scalar);
   }
-  SUBCASE("Testing operator* and operator/") {
+  SUBCASE("Testing * and /") {
     Vector v1{1., 2.};
     Vector v2{3., 4.};
     double scalar = v1 * v2;

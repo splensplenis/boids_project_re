@@ -1,7 +1,6 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include <cassert>
 
 class Vector {
   double x_ = 0.;

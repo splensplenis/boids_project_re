@@ -1,10 +1,6 @@
 #ifndef BOIDS_HPP
 #define BOIDS_HPP
 
-#include <algorithm>
-#include <cmath>
-#include <stdexcept>
-#include <string>
 #include <vector>
 
 #include "vector.hpp"
@@ -13,6 +9,7 @@ struct Boid {
   Vector position{};
   Vector velocity{};
 };
+
 bool operator==(Boid const&, Boid const&);
 bool operator!=(Boid const&, Boid const&);
 
