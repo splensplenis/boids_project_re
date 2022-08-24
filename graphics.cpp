@@ -125,8 +125,8 @@ void graphics_simulation(MultiFlock& more_flock,
 //quindi nel caso questo farà lui
     if (more_flock.size() == 1) {
       auto f = (more_flock.get_flocks())[0];
-      info_position.push_back(distance_parameters(f));
-      info_velocity.push_back(velocity_parameters(f));
+      info_position.push_back(get_distance_mean_RMS(f));
+      info_velocity.push_back(get_speed_mean_RMS(f));
     }
     //e se ho più flock? come cambiano info_position e info_velocity?
 
