@@ -42,7 +42,10 @@ TEST_CASE("Testing Vectors") {
     Vector v2{2., 4.};
     Vector v3{0.5, 1.};
     CHECK((v1 *= scalar) == v2);
-    CHECK((v1 /= scalar) == v3);
+    scalar = 4;
+    v2 /= scalar;
+    CHECK(v2 == v3);
+    //CHECK(v2.y() == doctest::Approx(2.));
     scalar = 0.;
     CHECK_THROWS(v1 /= scalar);
   }
@@ -50,7 +53,7 @@ TEST_CASE("Testing Vectors") {
     Vector v1{1., 2.};
     Vector v2{3., 4.};
     double scalar = v1 * v2;
-    CHECK(scalar == doctest::Approx(12.));
+    CHECK(scalar == doctest::Approx(11.));
     scalar = 2.;
     Vector v3{2., 4.};
     Vector v4{0.5, 1.};
@@ -63,3 +66,4 @@ TEST_CASE("Testing Vectors") {
     Vector v{2., 3.};
     CHECK(norm2(v) == 13.);
   }
+}
