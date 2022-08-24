@@ -18,6 +18,8 @@ inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
+
+//control of neighbourhood:
 inline bool are_neighbours(Options const& boids_options, Boid const& boid1,
                            Boid const& boid2) {
   return (distance(boid1, boid2) <= boids_options.distance);
@@ -64,6 +66,8 @@ inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   }
   return view_neighbours;
 }
+
+//rules regolating boids movement:
 inline Vector separation(Options const& boid_options, Boid const& boid,
                          std::vector<Boid> neighbours) {
   Vector partial_sum{};
@@ -103,49 +107,7 @@ inline Vector cohesion(Options const& boid_options, Boid const& boid,
     return Vector{0, 0};
   }
 }
-inline Vector get_distance_mean_RMS(Flock const& flock) {
-  // filling a histogram with distances between all boids of the flock
-  // then calculating its mean and standard deviation for a given time
-  std::vector<double> dist_histo{};
-  double partial_sum{};
-  double partial_sum2{};
-  auto boids = flock.get_boids();
-  for (int i{}; i != flock.size(); ++i) {
-    for (int j{i + 1}; j != flock.size(); ++j) {
-      double value = distance(boids[i], boids[j]);
-      dist_histo.push_back(value);
-      // this way distance bewtween boid 0 and boid 1 is calculated only once
-      // non dovremmo mettere un i!=j ?
-      partial_sum2 += value;
-    }
-  }
-  double mean_distance = partial_sum2 / flock.size();
-  for (int i{}; i != flock.size(); ++i) {
-    partial_sum +=
-        (dist_histo[i] - mean_distance) * (dist_histo[i] - mean_distance);
-  }
-  double distance_RMS = partial_sum / (flock.size() - 1);
-  return Vector{mean_distance, distance_RMS};
-}
-inline Vector get_speed_mean_RMS(Flock const& flock) {
-  std::vector<double> speed_histo{};
-  double partial_sum{};
-  double partial_sum2{};
-  auto boids = flock.get_boids();
-  for (int i{}; i != flock.size(); ++i) {
-    double value = speed(boids[i]);
-    speed_histo.push_back(value);
-    partial_sum2 += value;
-  }
-  double mean_speed = partial_sum2 / flock.size();
-  for (int i{}; i != flock.size(); ++i) {
-    partial_sum +=
-        (speed_histo[i] - mean_speed) * (speed_histo[i] - mean_speed);
-  }
-  double speed_RMS = partial_sum / (flock.size() - 1);
-  return Vector{mean_speed, speed_RMS};
-}
-inline void speed_control(Boid& boid) {  // Flock const& flock,
+inline void speed_control(Boid& boid) {
   double max_speed = 8.;                 // should not use hard-coded numbers!
   // double max_speed = velocity_parameters(flock).x() + 3 *
   // velocity_parameters(flock).y(); double min_speed =
@@ -160,6 +122,8 @@ inline void speed_control(Boid& boid) {  // Flock const& flock,
     boid.velocity *= min_speed;
   }
 }
+
+//behaviour at edges: see graphics.cpp
 
 #endif
 

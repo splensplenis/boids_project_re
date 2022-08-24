@@ -3,6 +3,7 @@
 #include "boids.hpp"
 #include "rules.hpp"
 #include "vector.hpp"
+
 class MultiFlock {
   std::vector<Flock> flocks_{};
 
@@ -13,7 +14,10 @@ class MultiFlock {
   std::vector<Boid> get_all_boids() const;
   void add(Flock const&);
   void evolve(double delta_t); //Ambient const& amb, 
+  std::vector<Vector> get_all_distance_mean_RMS() const;
+  std::vector<Vector> get_all_speed_mean_RMS() const;
 };
+
 MultiFlock::MultiFlock(std::vector<Flock> const& flocks) : flocks_{flocks} {}
 int MultiFlock::size() const { return flocks_.size(); }
 std::vector<Flock> MultiFlock::get_flocks() const { return flocks_; }
@@ -28,6 +32,7 @@ std::vector<Boid> MultiFlock::get_all_boids() const {
   return all_boids;
 }
 void MultiFlock::add(Flock const& flock) { flocks_.push_back(flock); }
+
 inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
                                               Boid const& boid) {
   std::vector<Boid> other_boids{};
@@ -50,46 +55,27 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   Flock other_boids_flock{other_boids, boid_options, alpha};
   other_neighbours = get_neighbours_of(other_boids_flock, boid);
   return other_neighbours;
-}  // cosi ho tutti ii vicini entro una certa distanza
+}  
+// this returns all the boids within distance 
+// of neighbourhood, regardless of their flock
 
-/*bool same_position(std::vector<Boid> boids) {
-  for(int i{}; i != boids.size(); ++i) {
-    for (int j{}; j!= boids.size(); ++j) {
-      if (i != j && boids[i].position == boids[j].position){
-        std::cout << "stessa posizione" << '\n';
-        return true;
-      }
-    }
-  }
-  return false;
-}
-*/
-inline std::vector<Vector> get_all_distance_mean_RMS(
-    MultiFlock const& multiflock) {
+std::vector<Vector> MultiFlock::get_all_distance_mean_RMS() const {
   std::vector<Vector> all_distance_mean_RMS{};
-  auto flocks = multiflock.get_flocks();
-  for (int i{}; i != multiflock.size(); ++i) {
-    auto mean_RMS = get_distance_mean_RMS(flocks[i]);
+  for (int i{}; i != this->size(); ++i) {
+    auto mean_RMS = (flocks_[i]).get_distance_mean_RMS();
     all_distance_mean_RMS.push_back(mean_RMS);
   }
   return all_distance_mean_RMS;
 }
-inline std::vector<Vector> get_all_speed_mean_RMS(
-    MultiFlock const& multiflock) {
+std::vector<Vector> MultiFlock::get_all_speed_mean_RMS() const {
   std::vector<Vector> all_speed_mean_RMS{};
-  auto flocks = multiflock.get_flocks();
-  for (int i{}; i != multiflock.size(); ++i) {
-    auto mean_RMS = get_speed_mean_RMS(flocks[i]);
+  for (int i{}; i != this->size(); ++i) {
+    auto mean_RMS = (flocks_[i]).get_speed_mean_RMS();
     all_speed_mean_RMS.push_back(mean_RMS);
   }
   return all_speed_mean_RMS;
 }
 void MultiFlock::evolve(double delta_t) { //Ambient const& amb, 
-  /*
-    for(int i{}; i != this->size(); ++i) {
-      flocks_[i].evolve(amb, delta_t);
-    } //easy version, to see if it's woring
-  */
   for (int i{}; i != this->size(); ++i) {
     Flock flock_i = flocks_[i];
     auto boids_i = flock_i.get_boids();
@@ -105,8 +91,6 @@ void MultiFlock::evolve(double delta_t) { //Ambient const& amb,
     }
     flock_i.evolve(delta_t); //amb, 
     flocks_[i] = flock_i;
-    // same_position(boids_i);
-    // std::cout << "ciao" << '\n';
   }
 }
 

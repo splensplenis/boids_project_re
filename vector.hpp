@@ -3,16 +3,13 @@
 
 #include <cassert>
 
-// using Coord = double; //type alias
 class Vector {
-  double x_{};
-  double y_{};
+  double x_ = 0.;
+  double y_ = 0.;
 
  public:
   Vector();
-  Vector(double, double);  // perché due tipi?
-  // Vector(Vector); by deafult?
-  // Vector(-Vector); should define -Vector?
+  Vector(double, double);
   void print();
   double x() const;
   double y() const;
