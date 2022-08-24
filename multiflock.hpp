@@ -11,7 +11,8 @@ class MultiFlock {
   int size() const;
   std::vector<Flock> get_flocks() const;
   std::vector<Boid> get_all_boids() const;
-  void evolve(Ambient const& amb, double delta_t);
+  void add(Flock const&);
+  void evolve(double delta_t); //Ambient const& amb, 
 };
 MultiFlock::MultiFlock(std::vector<Flock> const& flocks) : flocks_{flocks} {}
 int MultiFlock::size() const { return flocks_.size(); }
@@ -26,6 +27,7 @@ std::vector<Boid> MultiFlock::get_all_boids() const {
   }
   return all_boids;
 }
+void MultiFlock::add(Flock const& flock) { flocks_.push_back(flock); }
 inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
                                               Boid const& boid) {
   std::vector<Boid> other_boids{};
@@ -54,7 +56,7 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   for(int i{}; i != boids.size(); ++i) {
     for (int j{}; j!= boids.size(); ++j) {
       if (i != j && boids[i].position == boids[j].position){
-        std::cout << "stessa posizione" << '\n'; 
+        std::cout << "stessa posizione" << '\n';
         return true;
       }
     }
@@ -62,8 +64,27 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   return false;
 }
 */
-
-void MultiFlock::evolve(Ambient const& amb, double delta_t) {
+inline std::vector<Vector> get_all_distance_mean_RMS(
+    MultiFlock const& multiflock) {
+  std::vector<Vector> all_distance_mean_RMS{};
+  auto flocks = multiflock.get_flocks();
+  for (int i{}; i != multiflock.size(); ++i) {
+    auto mean_RMS = get_distance_mean_RMS(flocks[i]);
+    all_distance_mean_RMS.push_back(mean_RMS);
+  }
+  return all_distance_mean_RMS;
+}
+inline std::vector<Vector> get_all_speed_mean_RMS(
+    MultiFlock const& multiflock) {
+  std::vector<Vector> all_speed_mean_RMS{};
+  auto flocks = multiflock.get_flocks();
+  for (int i{}; i != multiflock.size(); ++i) {
+    auto mean_RMS = get_speed_mean_RMS(flocks[i]);
+    all_speed_mean_RMS.push_back(mean_RMS);
+  }
+  return all_speed_mean_RMS;
+}
+void MultiFlock::evolve(double delta_t) { //Ambient const& amb, 
   /*
     for(int i{}; i != this->size(); ++i) {
       flocks_[i].evolve(amb, delta_t);
@@ -82,10 +103,10 @@ void MultiFlock::evolve(Ambient const& amb, double delta_t) {
       other_neighbours.clear();
       boids_i[j] = boid;
     }
-    flock_i.evolve(amb, delta_t);
+    flock_i.evolve(delta_t); //amb, 
     flocks_[i] = flock_i;
-    //same_position(boids_i);
-    //std::cout << "ciao" << '\n';
+    // same_position(boids_i);
+    // std::cout << "ciao" << '\n';
   }
 }
 

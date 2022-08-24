@@ -9,11 +9,6 @@
 
 #include "vector.hpp"
 
-struct Ambient { //rectangluar ambient - should it be more general?
- Vector top_left_corner{};
- Vector bottom_right_corner{};
-};
-
 struct Boid {
   Vector position{};
   Vector velocity{};
@@ -32,8 +27,8 @@ struct Options {
 class Flock {
   std::vector<Boid> boids_{};
   Options boids_options_{};
-  //cretaed from values taken from input in range (0,1)
-  double alpha_{}; 
+  // cretaed from values taken from input in range (0,1)
+  double alpha_{};
 
  public:
   Flock(std::vector<Boid> const&, Options const&, double);
@@ -42,8 +37,16 @@ class Flock {
   Options get_options() const;
   double get_alpha() const;
   void add(Boid const&);
-  void evolve(Ambient const&, double);
+  void evolve(double); //Ambient const&, 
 };
+
+#endif
+
+
+/*struct Ambient {  // rectangluar ambient - should it be more general?
+  Vector top_left_corner{};
+  Vector bottom_right_corner{};
+};*/
 
 /* ->see "rules.hpp"
 double distance(Boid const&, Boid const&);
@@ -51,10 +54,10 @@ double speed(Boid const&);
 Vector applied_distance(Boid const&, Boid const&);
 
 // control of neighbourhood:
-bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be const&?
-bool is_member(Flock, Boid const&);
-auto get_neighbours_of(Flock, Boid const&); //auto here stands for std::vector<Boid>
-auto view_neighbours(Flock, Boid const&);
+bool are_neighbours(Flock, Boid const&, Boid const&); //Flock argument should be
+const&? bool is_member(Flock, Boid const&); auto get_neighbours_of(Flock, Boid
+const&); //auto here stands for std::vector<Boid> auto view_neighbours(Flock,
+Boid const&);
 
 // rules:
 Vector separation(Flock, Boid const&, std::vector<Boid>);  // separation
@@ -70,5 +73,3 @@ Vector air_resistance(Flock, boid); //to avoid speeding
 Vector distance_parameters(Flock);
 Vector velocity_parameters(Flock);
 */
-
-#endif
