@@ -1,9 +1,7 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include <cassert>
 
-// using Coord = double; //type alias
 class Vector {
   double x_{};
   double y_{};

@@ -3,6 +3,8 @@
 
 #include "boids.hpp"
 #include "vector.hpp"
+#include <cmath>
+#include <algorithm>
 
 inline double distance(Boid const& boid1, Boid const& boid2) {
   // modulo del vettore distanza tra boids
@@ -14,16 +16,16 @@ inline double speed(Boid const& boid) {  // modulo del vettore velocità
   return s;
 }
 inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
-  // vettore distanza tra boids
+  // vettore distanza tra boids, direzione vettore va da b1 a b2
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
-inline bool are_neighbours(Options const& boids_options, Boid const& boid1,
+/*inline bool are_neighbours(Options const& boids_options, Boid const& boid1,
                            Boid const& boid2) {
   return (distance(boid1, boid2) <= boids_options.distance);
-}
-inline bool is_member(Flock const& flock, Boid const& boid) {
-  auto boids = flock.get_boids();
+}*/
+inline bool is_member(std::vector<Boid> const& boids, Boid const& boid) {  //Flock const& flock
+  //auto boids = flock.get_boids();
   auto member = std::find(boids.begin(), boids.end(), boid);
   if (member != boids.end()) {
     return true;
@@ -39,7 +41,7 @@ inline std::vector<Boid> get_neighbours_of(Flock const& flock,
   }*/
   std::vector<Boid> neighbours{};
   for (double i{}; i != flock.size(); ++i) {
-    if ((boids[i]) != boid && are_neighbours(boids_options, boid, boids[i])) {
+    if ((boids[i]) != boid && distance(boid, boids[i]) <= boids_options.distance) { //are_neighbours(boids_options, boid, boids[i])
       neighbours.push_back(boids[i]);
     }
   }

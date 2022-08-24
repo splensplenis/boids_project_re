@@ -35,8 +35,17 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
   double alpha;
   Options boid_options;
   for (int i{}; i != multiflocks.size(); ++i) {
-    auto flock_i = flocks[i].get_boids();
-    auto member = std::find(flock_i.begin(), flock_i.end(), boid);  // find_if?
+    auto boids_i = flocks[i].get_boids();
+    bool member = is_member(boids_i, boid);
+    if (member == false) {
+      std::copy(boids_i.begin(), boids_i.end(),
+                std::back_inserter(other_boids));
+    }
+    if (member == true) {
+      alpha = flocks[i].get_alpha();
+      boid_options = flocks[i].get_options();
+    } 
+    /*auto member = std::find(flock_i.begin(), flock_i.end(), boid);  // find_if?
     if (member == flock_i.end()) {
       std::copy(flock_i.begin(), flock_i.end(),
                 std::back_inserter(other_boids));
@@ -44,7 +53,7 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
     if (member != flock_i.end()) {
       alpha = flocks[i].get_alpha();
       boid_options = flocks[i].get_options();
-    }
+    }*/
   }
   std::vector<Boid> other_neighbours{};
   Flock other_boids_flock{other_boids, boid_options, alpha};
