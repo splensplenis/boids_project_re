@@ -10,6 +10,11 @@ TEST_CASE("Testing Vectors") {
     CHECK(v1 == v3);
     CHECK(v2 != v3);
   }
+   SUBCASE("Testing zero-argument constructor") {
+    Vector v{0.,0.};
+    Vector w{};
+    CHECK (v == w);
+  }
   SUBCASE("Testing x() and y() methods") {  // va bene scritto cosi?
     Vector v1{1., 2.};
     CHECK(v1.x() == doctest::Approx(1.));
