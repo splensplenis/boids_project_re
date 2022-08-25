@@ -21,13 +21,18 @@ TEST_CASE("Testing Boids") {
   }
 }
 TEST_CASE("Testing rules") {
-  Boid b1{Vector{1., 2.}, Vector{1., 0}};
-  Boid b2{Vector{1., 2.}, Vector{1., 0}};
+  Boid b1{Vector{1., 2.}, Vector{1., 1.}};
+  Boid b2{Vector{1., 2.}, Vector{1., 1.}};
   Boid b3{Vector{5., 5.}, Vector{1., 2.}}; 
-  Boid b4{Vector{3., 0.}, Vector{0., 0.}};
+  Boid b4{Vector{3., 0.}, Vector{0., -1.}};
+  Boid b5{Vector{3., 2.}, Vector{-1., 2.}};
+  Boid b6{Vector{0., 0.}, Vector{0., 0.}};
+  Boid b7{Vector{0., 2.}, Vector{0., 0.}};
+  Boid b8{Vector{1., 2.5}, Vector{2., 2.}};
+  
   std::vector<Boid> boids{};
   Options boids_options{3., 0.5, 0.3, 0.1, 0.8}; //0.8 invece di 1 per ultimo
-  double alpha{180.};
+  double alpha{90.};
   Flock flock{boids, boids_options, alpha};
   SUBCASE("Testing is_member") {
     flock.add(b1);
@@ -51,24 +56,46 @@ TEST_CASE("Testing rules") {
    // CHECK(is_member(neighbours, b6));
   }
   SUBCASE("Testing view_neighbours") {
-    Flock flock_1{boids, boids_options, 90.}; //90 degrees per side
-    flock_1.add(b1);
-    flock_1.add(b4);
-    Boid b5{Vector{3., 2.}, Vector{0., 0.}};
-    flock_1.add(b5);
-    Boid b6{Vector{0., 0.}, Vector{0., 0.}};
-    flock_1.add(b6);
-    Boid b7{Vector{0., 2.}, Vector{0., 0.}};
-    flock_1.add(b7);
-    std::vector<Boid> neighbours = view_neighbours(flock_1, b1);
+    flock.add(b1);
+    flock.add(b4);
+    flock.add(b5);
+    flock.add(b6);
+    flock.add(b7);
+    std::vector<Boid> neighbours = view_neighbours(flock, b1);
     CHECK(is_member(neighbours, b4));
     CHECK(is_member(neighbours, b5));
     CHECK((is_member(neighbours, b6)) == false);
     CHECK((is_member(neighbours, b7)) == false); 
   } //altro?
-  SUBCASE("Testing separation") {}
-  SUBCASE("Testing alignment") {}
-  SUBCASE("Testing cohesion") {}
+  SUBCASE("Testing separation") {
+    flock.add(b4);
+    flock.add(b5);
+    Vector velocity = separation(boids_options, b1, view_neighbours(flock, b1));
+    Vector v1{0., 0.};
+    CHECK(velocity == v1);
+    flock.add(b8);
+    velocity = separation(boids_options, b1, view_neighbours(flock, b1));
+    Vector v2{0., -0.15};
+    CHECK(velocity == v2);
+  }
+  SUBCASE("Testing alignment") {
+    flock.add(b4);
+    flock.add(b5);
+    flock.add(b8);
+    Vector velocity = alignment(boids_options, b1, view_neighbours(flock, b1));
+    Vector v{-0.06666, 0.}; //5 cifre approssima bene
+    CHECK(doctest::Approx(velocity.x()) == v.x());
+    CHECK(doctest::Approx(velocity.y()) == v.y());
+  }
+  SUBCASE("Testing cohesion") {
+    flock.add(b4);
+    flock.add(b5);
+    flock.add(b8);
+    Vector velocity = cohesion(boids_options, b1, view_neighbours(flock, b1));
+    Vector v{1.06666, -0.4};
+    CHECK(doctest::Approx(velocity.x()) == v.x());
+    CHECK(doctest::Approx(velocity.y()) == v.y());
+  }
 
 }
 /*
