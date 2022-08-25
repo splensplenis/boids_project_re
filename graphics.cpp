@@ -1,81 +1,63 @@
 // compile with: g++ graphics.cpp -lsfml-graphics -lsfml-window -lsfml-system
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
-#include <fstream>
-#include <iomanip>
+
+#include <iomanip> //??
 #include <iostream>
-#include <random>
 
 #include "boids.hpp"
 #include "multiflock.hpp"
 #include "rules.hpp"
 
-
-//simulation including borders:
+// simulation including borders:
 struct Ambient {  // rectangluar ambient - should it be more general?
   Vector top_left_corner{};
   Vector bottom_right_corner{};
 };
-auto evolve(/*Ambient const& amb,*/ MultiFlock& more_flock, int steps_per_evolution,
-            sf::Time delta_t) {
+
+void avoid_boundaries(Ambient const& ambient, Boid& boid) {
+  if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
+    Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
+    // in realtà anche y non è quella...approssimazione
+    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
+    boid.position = v1;
+    boid.velocity = v2;
+  }
+  if ((boid.position).y() > (ambient.bottom_right_corner).y()) {
+    Vector v1{(boid.position).x(), (ambient.bottom_right_corner).y()};
+    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
+    boid.position = v1;
+    boid.velocity = v2;
+  }
+  if ((boid.position).x() < (ambient.top_left_corner).x()) {
+    Vector v1{(ambient.top_left_corner).x(), (boid.position).y()};
+    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
+    boid.position = v1;
+    boid.velocity = v2;
+  }
+  if ((boid.position).y() < (ambient.top_left_corner).y()) {
+    Vector v1{(boid.position).x(), (ambient.top_left_corner).y()};
+    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
+    boid.position = v1;
+    boid.velocity = v2;
+  }
+}
+
+auto closed_ambient_evolve(Ambient const& amb, MultiFlock& more_flock,
+                           int steps_per_evolution, sf::Time delta_t) {
   double const dt{delta_t.asSeconds()};
 
   for (int i{0}; i != steps_per_evolution; ++i) {
     more_flock.evolve(dt);
     //+ correzione ai boundaries da mettere qua
+    auto all_boids = more_flock.get_all_boids();
+    std::for_each(all_boids.begin(),
+                  all_boids.end(), [&](Boid& boid1) { avoid_boundaries(amb, boid1);});
+  //ora coi boids evoluti che ci faccio? devo rimetterli dentro al flock perchè si devono evolvere ancora
+  //e devono uscire dal loop una volta finito tutto
   }
   return more_flock.get_all_boids();
 }
-
-// boid random generation:
-//è effettivamente indipendente dalla grafica,
-// si può mettere da un'altra parte: unico problema
-//è che i valori hardcoded dipendono dalla grandezza dello schermo
-// gli facciamo prendere un Ambient come argomento?
-Flock generate_flock(int N, Options const& sp, double angle) {
-  std::default_random_engine gen;
-  // should generate more flocks randomly
-  // this way it only generates the same random flock again and again
-
-  std::normal_distribution<double> Vx(1, 0.05);
-  std::normal_distribution<double> Vy(0.5, 0.03);
-  std::vector<double> vel_x{};
-  std::vector<double> vel_y{};
-
-  std::uniform_real_distribution<double> Xx(0, 10.);
-  std::uniform_real_distribution<double> Xy(0., 10.);
-  std::vector<double> pos_x{};
-  std::vector<double> pos_y{};
-  for (int n = 0; n != N; ++n) {  // coordinates are casually generated
-    vel_x.push_back(Vx(gen));
-    vel_y.push_back(Vy(gen));
-    pos_x.push_back(Xx(gen));
-    pos_y.push_back(Xy(gen));
-  }
-  std::vector<Boid> empty{};
-  Flock f{empty, sp, angle};
-  for (int i = 0.; i != N; ++i) {
-    Boid b{Vector{pos_x[i], pos_y[i]}, Vector{vel_x[i], vel_y[i]}};
-    f.add(b);
-  }
-  return f;
-}
-
-// anche questo non c'entra con la grafica ma è un'opzione in più da aggiungere
-// nel main
-void write_to_file(std::vector<Vector> info_position,
-                   std::vector<Vector> info_velocity,
-                   std::vector<double> info_time) {
-  std::ofstream fos;     // file output stream
-  fos.open("data.txt");  // statistics printed here, to be used on root to see a
-                         // graph
-  for (int i = 0; i != info_time.size(); ++i) {
-    fos << info_time[i] << '\t' << info_position[i].x() << '\t'
-        << info_velocity[i].x() << '\n';
-    // fos.close() ci vuole??
-  }
-}  // questo come fa a printare se ci sono più flock? con più colonne? poi per
-   // root è un casino
 
 void graphics_simulation(MultiFlock& more_flock,
                          std::vector<std::vector<Vector>> info_position,
@@ -118,8 +100,8 @@ void graphics_simulation(MultiFlock& more_flock,
 
     window.clear(sf::Color::White);
 
-    auto const flock_vector =
-        evolve(/*boundaries,*/ more_flock, steps_per_evolution, delta_t);
+    auto const flock_vector = closed_ambient_evolve(
+        boundaries, more_flock, steps_per_evolution, delta_t);
 
     for (auto& boid : flock_vector) {
       sprite.setPosition((boid.position).x() * scale_x,
@@ -129,8 +111,6 @@ void graphics_simulation(MultiFlock& more_flock,
 
     window.display();
 
-
-
     info_position.push_back(more_flock.get_all_distance_mean_RMS());
     info_velocity.push_back(more_flock.get_all_speed_mean_RMS());
 
@@ -139,54 +119,4 @@ void graphics_simulation(MultiFlock& more_flock,
   }
 }
 
-int main() {
-  // Options simulation_options{3, 0.4, 0.5, 0.4, 0.5};
-  std::cout << "------Boid simulation-------" << '\n'
-            << "Plase enter values for simulation parameters:" << '\n'
-            << "Number of boids for each flock (default value = 40):" << '\n'
-            << "Distance of neighbours (default value = 1):" << '\n'
-            << "Distance of collision (default value = 0.5):" << '\n'
-            << "Separation rule (default value = 0.3):" << '\n'
-            << "Alignment rule (default value = 0.1):" << '\n'
-            << "Cohesion rule (default value = 1):" << '\n';
-  double angle{180};
-  int N;
-  double d;
-  double d_s;
-  double s;
-  double a;
-  double c;
-  std::cin >> N >> d >> d_s >> s >> a >> c;
-  Options simulation_options{d, d_s, s, a, c};
-  std::cout << "Do you want info about the simulation to be stored in a file "
-               "data.txt? (Y/N)"
-            << '\n';
-  char choice;
-  std::cin >> choice;
-  Flock flock1 = generate_flock(N, simulation_options, angle);
-
-  Boid b1{Vector{1, 1}, Vector{1, 0}};
-  Boid b2{Vector{5, 5}, Vector{0, 1}};
-  Boid b3{Vector{10, 10}, Vector{2, 2}};
-  Boid b4{Vector{10, 0}, Vector{1.5, 9}};
-
-  Boid b5{Vector{8, 7}, Vector{0.3, 2}};
-  Boid b6{Vector{2, 3}, Vector{9.6, 4.5}};
-  Boid b7{Vector{4, 4}, Vector{2.4, 9.5}};
-  Boid b8{Vector{1.6, 3.8}, Vector{1.2, 1}};
-  //Flock fprova{std::vector<Boid>{b1,b2}, simulation_options}; we need 2-argument constructor for this
-  Flock f1{std::vector<Boid>{b1, b2, b3, b4}, simulation_options, angle};
-  Flock f2{std::vector<Boid>{b5, b6, b7, b8}, simulation_options, angle};
-
-  MultiFlock multiflock{std::vector<Flock>{flock1, f1, f2}};
-  std::vector<std::vector<Vector>> info_position{};
-  std::vector<std::vector<Vector>> info_velocity{};
-  std::vector<double> info_time{};
-  graphics_simulation(multiflock, info_position, info_velocity, info_time);
-  if (choice == 'Y' && multiflock.size() == 1) {
-  //  write_to_file(info_position, info_velocity, info_time);
-    std::cout << "File data.txt was filled with info about the simulation"
-              << '\n';
-  }
-  return 0;
-}
+int main() {}

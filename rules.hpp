@@ -28,7 +28,6 @@ inline bool are_neighbours(Options const& boids_options, Boid const& boid1,
   return (distance(boid1, boid2) <= boids_options.distance);
 }*/
 inline bool is_member(std::vector<Boid> const& boids, Boid const& boid) {  //Flock const& flock
-  //auto boids = flock.get_boids();
   auto member = std::find(boids.begin(), boids.end(), boid);
   if (member != boids.end()) {
     return true;
@@ -52,7 +51,6 @@ inline std::vector<Boid> get_neighbours_of(Flock const& flock,
 }
 inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
-  // auto boids_options = flock.get_options();
   double pi = std::acos(-1.0);
   std::vector<Boid> view_neighbours{};
   std::vector<Boid> neighbours = get_neighbours_of(flock, boid);
