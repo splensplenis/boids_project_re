@@ -5,7 +5,7 @@
 #include "rules.hpp"
 #include "vector.hpp"
 
-// test should be compiled with: g++ vector.cpp boids.cpp boids.test.cpp
+// to test boids, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp boids.cpp boids.test.cpp
 
 TEST_CASE("Testing Boids") {
   SUBCASE("Testing operator== and operator!= ") {
@@ -18,7 +18,8 @@ TEST_CASE("Testing Boids") {
   SUBCASE("Testing defualt initialisation") {
     Vector zero{};
     Boid b0{};
-    CHECK(b0.position == zero && b0.velocity == zero);
+    CHECK(b0.position == zero);
+    CHECK(b0.velocity == zero);
   }
   SUBCASE("Testing dist, speed and appl dist functions") {
     Boid b1{Vector{1., 1.}, Vector{0., 0.}};
@@ -46,7 +47,7 @@ TEST_CASE("Testing rules") {
   Boid b8{Vector{1., 2.5}, Vector{2., 2.}};
 
   std::vector<Boid> boids{};
-  Options boids_options{3., 0.5, 0.3, 0.1, 0.8};  // 0.8 invece di 1 per ultimo
+  Options boids_options{3., 0.5, 0.3, 0.1, 0.8};
   double alpha{90.};
   Flock flock{boids, boids_options, alpha};
   SUBCASE("Testing is_member") {

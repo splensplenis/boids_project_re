@@ -1,17 +1,23 @@
-// compile with: g++ graphics.cpp -lsfml-graphics -lsfml-window -lsfml-system
+// compile with:
+// g++ -Wall -Wextra -fsanitize=address vector.cpp boids.cpp graphics.cpp -lsfml-graphics -lsfml-window -lsfml-system
+
+//è normale che chiudendo la window dia memory leak?
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
 
-#include <iomanip> //??
+#include <fstream>
+//#include <iomanip>
 #include <iostream>
 
 #include "boids.hpp"
 #include "multiflock.hpp"
 #include "rules.hpp"
+#include "boids_random.hpp"
 
 // simulation including borders:
 
-struct Ambient {  // rectangluar ambient - should it be more general?
+struct Ambient {  // rectangluar ambient
   Vector top_left_corner{};
   Vector bottom_right_corner{};
 };
@@ -120,4 +126,32 @@ void graphics_simulation(MultiFlock& more_flock,
   }
 }
 
-int main() {}
+void write_to_file(std::vector<Vector> info_position,
+                   std::vector<Vector> info_velocity,
+                   std::vector<double> info_time) {
+  std::ofstream file_output_stream;
+  file_output_stream.open("data.txt");  
+  // statistics printed here, to be used on root to see a graph
+  for (long unsigned int i{}; i != info_time.size(); ++i) {
+    file_output_stream << info_time[i] << '\t' << info_position[i].x() << '\t'
+        << info_velocity[i].x() << '\n';
+    // fos.close() ci vuole??
+  }
+}  // questo come fa a printare se ci sono più flock? con più colonne? poi per
+   // root è un casino, ma solo per root
+
+int main() {
+  std::cout << "----Boids simulation: implemented with graphics-----" <<'\n';
+  Options simulation{1, 0.5, 0.3, 0.1, 1};
+  double view_angle{90};
+  MultiFlock random_multif = generate_multiflock(3, 10, simulation, view_angle);
+
+  std::vector<std::vector<Vector>> info_position{};
+  std::vector<std::vector<Vector>> info_velocity{};
+  std::vector<double> info_time{};
+
+  graphics_simulation(random_multif, info_position, info_velocity, info_time);
+
+  //write to file
+
+}

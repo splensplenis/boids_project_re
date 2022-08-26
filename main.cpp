@@ -1,15 +1,27 @@
 //compilation string:
-//g++ -Wall -Wextra -fsanitize=address vector.cpp vector.test.cpp boids.cpp boids.test.cpp file_output.cpp graphics.cpp main.cpp
+//g++ -Wall -Wextra -fsanitize=address vector.cpp boids.cpp main.cpp
 #include <iostream>
+#include <fstream>
+//#include <iomanip>
 
 #include "boids.hpp"
 #include "multiflock.hpp"
 #include "rules.hpp"
-#include "boid_random.hpp"
+#include "boids_random.hpp"
 
-//graphics simulation è da includere.
-//vogliamo che sia un hpp? o solo un cpp con già dentro il main, nostro particolare
-//e lasciare gli hpp a chi vuole farci qualcosa coi boid?
+void write_to_file(std::vector<Vector> info_position,
+                   std::vector<Vector> info_velocity,
+                   std::vector<double> info_time) {
+  std::ofstream file_output_stream;
+  file_output_stream.open("data.txt");  
+  // statistics printed here, to be used on root to see a graph
+  for (long unsigned int i{}; i != info_time.size(); ++i) {
+    file_output_stream << info_time[i] << '\t' << info_position[i].x() << '\t'
+        << info_velocity[i].x() << '\n';
+    // fos.close() ci vuole??
+  }
+}  // questo come fa a printare se ci sono più flock? con più colonne? poi per
+   // root è un casino, ma solo per root
 
 int main() {
   // Options simulation_options{3, 0.4, 0.5, 0.4, 0.5};
@@ -55,9 +67,11 @@ int main() {
   std::vector<std::vector<Vector>> info_position{};
   std::vector<std::vector<Vector>> info_velocity{};
   std::vector<double> info_time{};
-  graphics_simulation(multiflock, info_position, info_velocity, info_time);
+  //graphics_simulation(multiflock, info_position, info_velocity, info_time);
   if (choice == 'Y' && multiflock.size() == 1) {
-    //  write_to_file(info_position, info_velocity, info_time);
+    std::vector<Vector> first_flock_position = info_position[0];
+    std::vector<Vector> first_flock_velocity = info_velocity[0];
+    write_to_file(first_flock_position, first_flock_velocity, info_time);
     std::cout << "File data.txt was filled with info about the simulation"
               << '\n';
   }
