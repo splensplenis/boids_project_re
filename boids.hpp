@@ -24,7 +24,7 @@ struct Options {
 class Flock {
   std::vector<Boid> boids_{};
   Options boids_options_{};
-  double alpha_ = 180; //in degrees
+  double alpha_{} /*= 180*/; //in degrees
 
  public:
   Flock(std::vector<Boid> const&, Options const&, double);

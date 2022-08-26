@@ -3,6 +3,8 @@
 
 //è normale che chiudendo la window dia memory leak?
 
+//Parametri per grafica (?): 40 20 7 10 0.01 0.05
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
 
@@ -50,7 +52,7 @@ void avoid_boundaries(Ambient const& ambient, Boid& boid) {
   }
 }
 
-auto closed_ambient_evolve(Ambient const& amb, MultiFlock& more_flock,
+/*auto closed_ambient_evolve(Ambient const& amb, MultiFlock& more_flock,
                            int steps_per_evolution, sf::Time delta_t) { //<---- !!
   double const dt{delta_t.asSeconds()};
 
@@ -64,9 +66,75 @@ auto closed_ambient_evolve(Ambient const& amb, MultiFlock& more_flock,
   //e devono uscire dal loop una volta finito tutto
   }
   return more_flock.get_all_boids();
+}*/
+
+/* void ApplyAmbient(MultiFlock& multiflock, const int width, const int height){
+    std::vector<Flock> flock_vec {multiflock.get_flocks()};
+    for (size_t flock = 0; flock < flock_vec.size(); flock++)
+    {
+        std::vector<Boid> boid_vec{flock_vec[flock].get_boids()};
+        for (size_t boid = 0; boid < boid_vec.size(); boid++)
+        {
+            if (boid_vec[boid].position.x() < 0){
+                boid_vec[boid].position = Vector(0,boid_vec[boid].position.y());
+                boid_vec[boid].velocity = Vector(-boid_vec[boid].velocity.x(),boid_vec[boid].velocity.y());
+            }
+            if (boid_vec[boid].position.x() > width){
+                boid_vec[boid].position = Vector(width,boid_vec[boid].position.y());
+                boid_vec[boid].velocity = Vector(-boid_vec[boid].velocity.x(),boid_vec[boid].velocity.y());
+            }
+            if (boid_vec[boid].position.y() < 0){
+                boid_vec[boid].position = Vector(boid_vec[boid].position.x(),0);
+                boid_vec[boid].velocity = Vector(boid_vec[boid].velocity.x(),-boid_vec[boid].velocity.y());
+            }
+            if (boid_vec[boid].position.y() > height){
+                boid_vec[boid].position = Vector(boid_vec[boid].position.x(),height);
+                boid_vec[boid].velocity = Vector(boid_vec[boid].velocity.x(),-boid_vec[boid].velocity.y());
+            }
+        }
+        flock_vec[flock] = Flock(boid_vec,flock_vec[flock].get_options(),flock_vec[flock].get_alpha());
+    }
+    multiflock.set(flock_vec);
+}
+ */
+
+void ApplyFlockAmbient(Flock& flock, const int width, const int height){
+    std::vector<Boid> boid_vec{flock.get_boids()};
+    for (size_t boid = 0; boid < boid_vec.size(); boid++)
+    {
+        if (boid_vec[boid].position.x() < 0){
+            boid_vec[boid].position = Vector(0,boid_vec[boid].position.y());
+            boid_vec[boid].velocity = Vector(-boid_vec[boid].velocity.x(),boid_vec[boid].velocity.y());
+        }
+        if (boid_vec[boid].position.x() > width){
+            boid_vec[boid].position = Vector(width,boid_vec[boid].position.y());
+            boid_vec[boid].velocity = Vector(-boid_vec[boid].velocity.x(),boid_vec[boid].velocity.y());
+        }
+        if (boid_vec[boid].position.y() < 0){
+            boid_vec[boid].position = Vector(boid_vec[boid].position.x(),0);
+            boid_vec[boid].velocity = Vector(boid_vec[boid].velocity.x(),-boid_vec[boid].velocity.y());
+        }
+        if (boid_vec[boid].position.y() > height){
+            boid_vec[boid].position = Vector(boid_vec[boid].position.x(),height);
+            boid_vec[boid].velocity = Vector(boid_vec[boid].velocity.x(),-boid_vec[boid].velocity.y());
+        }
+    }
+    flock = Flock(boid_vec,flock.get_options(),flock.get_alpha());
 }
 
-void graphics_simulation(MultiFlock& more_flock,
+auto evolve(/*Ambient const& amb,*/ MultiFlock& more_flock, int steps_per_evolution,
+            sf::Time delta_t) {
+  double const dt{delta_t.asSeconds()};
+
+  for (int i{0}; i != steps_per_evolution; ++i) {
+    more_flock.evolve(dt, [](Flock& flock){ApplyFlockAmbient(flock,640,480);});
+    //ApplyAmbient(more_flock,640,480);
+    //+ correzione ai boundaries da mettere qua
+  }
+  return more_flock.get_all_boids();
+}
+
+/*void graphics_simulation(MultiFlock& more_flock,
                          std::vector<std::vector<Vector>> info_position,
                          std::vector<std::vector<Vector>> info_velocity,
                          std::vector<double> info_time) {
@@ -124,6 +192,40 @@ void graphics_simulation(MultiFlock& more_flock,
     time_count += delta_t.asSeconds();
     info_time.push_back(time_count);
   }
+}*/
+
+void graphics_simulation(MultiFlock& more_flock) {
+  auto const delta_t{sf::milliseconds(1)};
+  int const fps = 60;
+  int const steps_per_evolution{1000 / fps};
+
+  sf::RenderWindow window(sf::VideoMode(640,480),"Boids!");
+  window.setFramerateLimit(fps);
+
+  sf::CircleShape sprite {4,3};
+  sprite.setOrigin(4,4);
+  sprite.setFillColor(sf::Color::Black);
+
+  while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) window.close();
+    }
+
+    window.clear(sf::Color::White);
+
+    auto const flock_vector =
+        evolve(/*boundaries,*/ more_flock, steps_per_evolution, delta_t);
+
+
+    for (auto& boid : flock_vector) {
+      sprite.setPosition((boid.position).x(),
+                         (boid.position).y());
+      window.draw(sprite);
+    }
+
+    window.display();
+  }
 }
 
 void write_to_file(std::vector<Vector> info_position,
@@ -146,11 +248,11 @@ int main() {
   double view_angle{90};
   MultiFlock random_multif = generate_multiflock(3, 10, simulation, view_angle);
 
-  std::vector<std::vector<Vector>> info_position{};
+  /*std::vector<std::vector<Vector>> info_position{};
   std::vector<std::vector<Vector>> info_velocity{};
-  std::vector<double> info_time{};
+  std::vector<double> info_time{};*/
 
-  graphics_simulation(random_multif, info_position, info_velocity, info_time);
+  graphics_simulation(random_multif/*, info_position, info_velocity, info_time*/);
 
   //write to file
 

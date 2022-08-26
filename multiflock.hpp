@@ -5,6 +5,8 @@
 #include "rules.hpp"
 #include "vector.hpp"
 
+#include <functional>
+
 class MultiFlock {
   std::vector<Flock> flocks_{};
 
@@ -15,6 +17,7 @@ class MultiFlock {
   std::vector<Boid> get_all_boids() const;
   void add(Flock const&);
   void evolve(double delta_t); //Ambient const& amb, 
+  void evolve(double, std::function<void(Flock&)>);
   std::vector<Vector> get_all_distance_mean_RMS() const;
   std::vector<Vector> get_all_speed_mean_RMS() const;
 };
@@ -76,6 +79,7 @@ inline std::vector<Vector> MultiFlock::get_all_speed_mean_RMS() const {
   }
   return all_speed_mean_RMS;
 }
+/*old version of evolve
 inline void MultiFlock::evolve(double delta_t) { //Ambient const& amb, 
   for (int i{}; i != this->size(); ++i) {
     Flock flock_i = flocks_[i];
@@ -93,6 +97,45 @@ inline void MultiFlock::evolve(double delta_t) { //Ambient const& amb,
     flock_i.evolve(delta_t); //amb, 
     flocks_[i] = flock_i;
   }
+}*/
+
+void MultiFlock::evolve(double delta_t) { //Ambient const& amb, 
+/*   for (int i{}; i != this->size(); ++i) {
+    std::vector<Boid> boid_vec {flocks_[i].get_boids()};
+    std::vector<Boid> copy_vec {flocks_[i].get_boids()};
+    for (int j = 0; j < boid_vec.size(); j++)
+    {
+      std::vector<Boid> neighbours {get_other_neighbours(*this, boid_vec[j])};
+      boid_vec[j].velocity += separation(flocks_[i].get_options(), copy_vec[j], neighbours);
+    }
+    flocks_[i] = Flock(boid_vec,flocks_[i].get_options(),flocks_[i].get_alpha());
+
+  } */
+
+  std::for_each(flocks_.begin(),flocks_.end(), [&](Flock& flock){
+    std::vector<Boid> boid_vec {flock.get_boids()};
+    std::vector<Boid> copy_vec {flock.get_boids()};
+    for (size_t boid{}; boid != boid_vec.size(); ++boid){
+      std::vector<Boid> neighbours {get_other_neighbours(flocks_,boid_vec[boid])};
+      boid_vec[boid].velocity += separation(flock.get_options(), copy_vec[boid], neighbours);
+    }
+    flock = Flock(boid_vec, flock.get_options(), flock.get_alpha());
+  });
+/*   for (int i{}; i != this->size(); ++i) {
+    flocks_[i].evolve(delta_t);
+  } */
+
+  std::for_each(flocks_.begin(), flocks_.end(), [delta_t](Flock& flock){
+    flock.evolve(delta_t);
+  });
+
+}
+
+void MultiFlock::evolve(double delta_t, std::function<void(Flock&)> costraint_applier){
+  this->evolve(delta_t);
+  std::for_each(flocks_.begin(),flocks_.end(),[&](Flock& flock){
+    costraint_applier(flock);
+  });
 }
 
 #endif
