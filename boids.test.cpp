@@ -6,6 +6,9 @@
 #include "rules.hpp"
 #include "vector.hpp"
 
+#include <cmath>
+#include <iostream>
+
 // test should be compiled with: g++ vector.cpp boids.cpp boids.test.cpp
 
 TEST_CASE("Testing Boids") {
@@ -68,6 +71,7 @@ TEST_CASE("Testing rules") {
     CHECK((is_member(neighbours, b7)) == false); 
   } //altro?
   SUBCASE("Testing separation") {
+    flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     Vector velocity = separation(boids_options, b1, view_neighbours(flock, b1));
@@ -79,6 +83,7 @@ TEST_CASE("Testing rules") {
     CHECK(velocity == v2);
   }
   SUBCASE("Testing alignment") {
+    flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     flock.add(b8);
@@ -88,6 +93,7 @@ TEST_CASE("Testing rules") {
     CHECK(doctest::Approx(velocity.y()) == v.y());
   }
   SUBCASE("Testing cohesion") {
+    flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     flock.add(b8);
