@@ -56,9 +56,9 @@ inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   std::vector<Boid> neighbours = get_neighbours_of(flock, boid);
   for (double i{}; i != neighbours.size();
        ++i) {  // scalar product gives the angle
-    double theta =
+    double theta =   //in radianti
         std::acos((boid.velocity * applied_distance(boid, neighbours[i])) /
-                  (speed(boid) * distance(boid, neighbours[i])));
+                  (speed(boid) * distance(boid, neighbours[i]))); 
     theta = 180 * theta / pi;
     double alpha = flock.get_alpha();  // alpha is half the plain angle!
     if (theta <= alpha) {
@@ -108,12 +108,7 @@ inline Vector cohesion(Options const& boid_options, Boid const& boid,
     return Vector{0, 0};
   }
 }
-inline void speed_control(Boid& boid) {
-  double max_speed = 8.;                 // should not use hard-coded numbers!
-  // double max_speed = velocity_parameters(flock).x() + 3 *
-  // velocity_parameters(flock).y(); double min_speed =
-  // velocity_parameters(flock).x() - 3 *velocity_parameters(flock).y();
-  double min_speed = 2.;
+inline void speed_control(Boid& boid, double max_speed = 8., double min_speed = 2. ) {
   if (speed(boid) > max_speed) {
     boid.velocity /= speed(boid);
     boid.velocity *= max_speed;
