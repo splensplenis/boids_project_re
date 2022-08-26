@@ -10,7 +10,7 @@
 
 
 TEST_CASE("Testing Boids") {
-  SUBCASE("Testing operator== and operator!= ") {
+  SUBCASE("Testing == and != ") {
     Boid b1{Vector{1., 2.}, Vector{1., 1.}};
     Boid b2{Vector{1., 2.}, Vector{1., 1.}};
     Boid b3{Vector{5., 5.}, Vector{1., 2.}};
@@ -23,7 +23,7 @@ TEST_CASE("Testing Boids") {
     CHECK(b0.position == zero);
     CHECK(b0.velocity == zero);
   }
-  SUBCASE("Testing dist, speed and appl dist functions") {
+  SUBCASE("Testing distance, speed and appllied_distance functions") {
     Boid b1{Vector{1., 1.}, Vector{0., 0.}};
     Boid b2{Vector{2., 2.}, Vector{-3., -9.}};
     CHECK(distance(b1, b2) == distance(b2, b1));
@@ -39,8 +39,8 @@ TEST_CASE("Testing Boids") {
   }
 }
 TEST_CASE("Testing rules") {
-  Boid b1{Vector{1., 2.}, Vector{1., 0}};
-  Boid b2{Vector{1., 2.}, Vector{1., 0}};
+  Boid b1{Vector{1., 2.}, Vector{1., 1.}};
+  Boid b2{Vector{1., 2.}, Vector{1., 1.}};
   Boid b3{Vector{5., 5.}, Vector{1., 2.}};
   Boid b4{Vector{3., 0.}, Vector{0., -1.}};
   Boid b5{Vector{3., 2.}, Vector{-1., 2.}};
@@ -55,11 +55,7 @@ TEST_CASE("Testing rules") {
   SUBCASE("Testing is_member") {
     flock.add(b1);
     flock.add(b3);
-    CHECK(is_member(flock.get_boids(), b2) == true);
-    // b1 e b2 hanno stesse coord quindi dice che b2 c'è, va bene?
-    // direi di sì, alla fine se b2 "appartiene" al flock significa che
-    // si comporta esattamente come b1 e quindi chiamando b2 dopo un evolve
-    // equivale a chiamare b1 evoluto nel suo flock
+    CHECK(is_member(flock.get_boids(), b1) == true);
     CHECK((is_member(flock.get_boids(), b4)) == false);
   }
   SUBCASE("Testing get_neighbours_of") {
@@ -84,7 +80,15 @@ TEST_CASE("Testing rules") {
     CHECK(is_member(neighbours, b5) == true);
     CHECK((is_member(neighbours, b6)) == false);
     CHECK((is_member(neighbours, b7)) == false);
-    // cosa succede con angoli diversi?
+    // alpha uguale a zero non vede nessuno, è giusto cosi?
+    /*Flock flock_i{boids, boids_options, 0.};
+    Boid b{Vector{2., 3.}, Vector{0., 0.}};
+    flock_i.add(b1);
+    flock_i.add(b);
+    std::vector<Boid> neighbours = get_neighbours_of(flock_i, b1);
+    std::vector<Boid> neighbours_1 = view_neighbours(flock_i, b1);
+    CHECK(neighbours.size() == 1);
+    CHECK(is_member(neighbours_1, b));*/
   }
   SUBCASE("Testing separation") {
     flock.add(b1);
@@ -122,23 +126,10 @@ TEST_CASE("Testing rules") {
 TEST_CASE("Testing flock and multiflock classes") {
   SUBCASE("Testing 3-parameters flock ctor") {}
   SUBCASE("Testing 2-paramerers flock ctor") {}
-  // se è vuoto, che cosa restituisce get boids?
+  // se è vuoto, che cosa restituisce get boids? vettore di boids vuoto suppongo
   SUBCASE("Testing flock evolve") {}
   SUBCASE("Testing multiflock ctor") {}
   SUBCASE("Testing multiflock evolve") {}
   SUBCASE("Testing get statistics") {}
+  
 }
-/*
-//Boid b3{Vector{10, 10}, Vector{0, 0}};
-Boid b4{Vector{10, 0}, Vector{0, 0}};
-
-Boid b5{Vector{8, 7}, Vector{0, 0}};
-Boid b6{Vector{2, 3}, Vector{0, 0}};
-Boid b7{Vector{4, 4}, Vector{0, 0}};
-Boid b8{Vector{1.6, 3.8}, Vector{0, 0}};
-
-Options sp{10., 0.6, 0.4, 0.1, 0.2};  //
-
-Flock f1{std::vector<Boid>{b1, b2, b3, b4}, sp, 45};
-Flock f2{std::vector<Boid>{b5, b6, b7, b8}, sp, 45}
-*/
