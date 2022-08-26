@@ -24,7 +24,6 @@ struct Options {
 class Flock {
   std::vector<Boid> boids_{};
   Options boids_options_{};
-  // cretaed from values taken from input in range (0,1)
   double alpha_ = 180; //in degrees
 
  public:

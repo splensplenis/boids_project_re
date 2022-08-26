@@ -1,5 +1,6 @@
 #ifndef MULTIFLOCK_HPP
 #define MULTIFLOCK_HPP
+
 #include "boids.hpp"
 #include "rules.hpp"
 #include "vector.hpp"
@@ -18,10 +19,10 @@ class MultiFlock {
   std::vector<Vector> get_all_speed_mean_RMS() const;
 };
 
-MultiFlock::MultiFlock(std::vector<Flock> const& flocks) : flocks_{flocks} {}
-int MultiFlock::size() const { return flocks_.size(); }
-std::vector<Flock> MultiFlock::get_flocks() const { return flocks_; }
-std::vector<Boid> MultiFlock::get_all_boids() const {
+inline MultiFlock::MultiFlock(std::vector<Flock> const& flocks) : flocks_{flocks} {}
+inline int MultiFlock::size() const { return flocks_.size(); }
+inline std::vector<Flock> MultiFlock::get_flocks() const { return flocks_; }
+inline std::vector<Boid> MultiFlock::get_all_boids() const {
   std::vector<Boid> all_boids{};
   for (int i{}; i != this->size(); ++i) {
     auto each_flock = flocks_[i].get_boids();
@@ -31,7 +32,7 @@ std::vector<Boid> MultiFlock::get_all_boids() const {
   }
   return all_boids;
 }
-void MultiFlock::add(Flock const& flock) { flocks_.push_back(flock); }
+inline void MultiFlock::add(Flock const& flock) { flocks_.push_back(flock); }
 
 inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
                                               Boid const& boid) {
@@ -50,15 +51,6 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
       alpha = flocks[i].get_alpha();
       boid_options = flocks[i].get_options();
     } 
-    /*auto member = std::find(flock_i.begin(), flock_i.end(), boid);  // find_if?
-    if (member == flock_i.end()) {
-      std::copy(flock_i.begin(), flock_i.end(),
-                std::back_inserter(other_boids));
-    }
-    if (member != flock_i.end()) {
-      alpha = flocks[i].get_alpha();
-      boid_options = flocks[i].get_options();
-    }*/
   }
   std::vector<Boid> other_neighbours{};
   Flock other_boids_flock{other_boids, boid_options, alpha};
@@ -68,7 +60,7 @@ inline std::vector<Boid> get_other_neighbours(MultiFlock const& multiflocks,
 // this returns all the boids within distance 
 // of neighbourhood, regardless of their flock
 
-std::vector<Vector> MultiFlock::get_all_distance_mean_RMS() const {
+inline std::vector<Vector> MultiFlock::get_all_distance_mean_RMS() const {
   std::vector<Vector> all_distance_mean_RMS{};
   for (int i{}; i != this->size(); ++i) {
     auto mean_RMS = (flocks_[i]).get_distance_mean_RMS();
@@ -76,7 +68,7 @@ std::vector<Vector> MultiFlock::get_all_distance_mean_RMS() const {
   }
   return all_distance_mean_RMS;
 }
-std::vector<Vector> MultiFlock::get_all_speed_mean_RMS() const {
+inline std::vector<Vector> MultiFlock::get_all_speed_mean_RMS() const {
   std::vector<Vector> all_speed_mean_RMS{};
   for (int i{}; i != this->size(); ++i) {
     auto mean_RMS = (flocks_[i]).get_speed_mean_RMS();
@@ -84,7 +76,7 @@ std::vector<Vector> MultiFlock::get_all_speed_mean_RMS() const {
   }
   return all_speed_mean_RMS;
 }
-void MultiFlock::evolve(double delta_t) { //Ambient const& amb, 
+inline void MultiFlock::evolve(double delta_t) { //Ambient const& amb, 
   for (int i{}; i != this->size(); ++i) {
     Flock flock_i = flocks_[i];
     auto boids_i = flock_i.get_boids();

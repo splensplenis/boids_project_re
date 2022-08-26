@@ -7,16 +7,17 @@
 #include <algorithm>
 
 inline double distance(Boid const& boid1, Boid const& boid2) {
-  // modulo del vettore distanza tra boids
+  // scalar distance between boids: magnitude of distance vector
   double d = sqrt(norm2(boid1.position - boid2.position));
   return d;
 }
-inline double speed(Boid const& boid) {  // modulo del vettore velocità
+inline double speed(Boid const& boid) {
+  // magnitude of boid's velocity
   double s = sqrt(norm2(boid.velocity));
   return s;
 }
 inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
-  // vettore distanza tra boids, direzione vettore va da b1 a b2
+  // distance vector between boids, applied to boid1 towards boid2
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
@@ -27,8 +28,7 @@ inline bool are_neighbours(Options const& boids_options, Boid const& boid1,
                            Boid const& boid2) {
   return (distance(boid1, boid2) <= boids_options.distance);
 }*/
-inline bool is_member(std::vector<Boid> const& boids, Boid const& boid) {  //Flock const& flock
-  //auto boids = flock.get_boids();
+inline bool is_member(std::vector<Boid> const& boids, Boid const& boid) {
   auto member = std::find(boids.begin(), boids.end(), boid);
   if (member != boids.end()) {
     return true;
@@ -44,7 +44,7 @@ inline std::vector<Boid> get_neighbours_of(Flock const& flock,
   }*/
   std::vector<Boid> neighbours{};
   for (double i{}; i != flock.size(); ++i) {
-    if ((boids[i]) != boid && distance(boid, boids[i]) <= boids_options.distance) { //are_neighbours(boids_options, boid, boids[i])
+    if ((boids[i]) != boid && distance(boid, boids[i]) <= boids_options.distance) {  //i.e. are_neighbours(boids_options, boid, boids[i])
       neighbours.push_back(boids[i]);
     }
   }
@@ -52,7 +52,6 @@ inline std::vector<Boid> get_neighbours_of(Flock const& flock,
 }
 inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
-  // auto boids_options = flock.get_options();
   double pi = std::acos(-1.0);
   std::vector<Boid> view_neighbours{};
   std::vector<Boid> neighbours = get_neighbours_of(flock, boid);
