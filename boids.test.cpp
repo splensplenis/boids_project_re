@@ -5,8 +5,8 @@
 #include "rules.hpp"
 #include "vector.hpp"
 
-// to test boids, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp
-// boids.cpp boids.test.cpp
+
+// to test boids, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp boids.cpp boids.test.cpp
 
 TEST_CASE("Testing Boids") {
   SUBCASE("Testing == and != ") {
@@ -98,6 +98,7 @@ TEST_CASE("Testing rules") {
     CHECK(is_member(neighbours_1, b));*/
   }
   SUBCASE("Testing separation") {
+    flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     Vector velocity = separation(boids_options, b1, view_neighbours(flock, b1));
@@ -118,6 +119,7 @@ TEST_CASE("Testing rules") {
     CHECK(velocity_b8.y() == doctest::Approx(0.27));
   }
   SUBCASE("Testing alignment") {
+    flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     flock.add(b8);
@@ -133,6 +135,7 @@ TEST_CASE("Testing rules") {
     // because b7 is not seen by b1
   }
   SUBCASE("Testing cohesion") {
+    flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     flock.add(b8);
