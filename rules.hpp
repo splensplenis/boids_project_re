@@ -119,7 +119,7 @@ inline void speed_control(Boid& boid) {
     boid.velocity /= speed(boid);
     boid.velocity *= max_speed;
   }
-  if (speed(boid) < min_speed) {
+  if (speed(boid) < min_speed && speed(boid) != 0 ) {
     boid.velocity /= speed(boid);
     boid.velocity *= min_speed;
   }

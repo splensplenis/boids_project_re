@@ -51,7 +51,7 @@ void avoid_boundaries(Ambient const& ambient, Boid& boid) {
 }
 
 auto closed_ambient_evolve(Ambient const& amb, MultiFlock& more_flock,
-                           int steps_per_evolution, sf::Time delta_t) {
+                           int steps_per_evolution, sf::Time delta_t) { //<---- !!
   double const dt{delta_t.asSeconds()};
 
   for (int i{0}; i != steps_per_evolution; ++i) {

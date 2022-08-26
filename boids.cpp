@@ -17,17 +17,17 @@ bool operator!=(Boid const& boid1, Boid const& boid2) {
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options,
              double alpha = 180.)
     : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {
-  assert((boids_options.distance > 0.) &&
-         (boids_options.separation_distance > 0.) &&
-         (boids_options.separation > 0.) && (boids_options.alignment > 0.) &&
-         (boids_options.cohesion > 0.) && (alpha > 0.));
+  assert((boids_options.distance >= 0.) &&
+         (boids_options.separation_distance >= 0.) &&
+         (boids_options.separation >= 0.) && (boids_options.alignment >= 0.) &&
+         (boids_options.cohesion >= 0.) && (alpha >= 0.));
 }
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options)
     : boids_{boids}, boids_options_{boids_options} {
-  assert((boids_options.distance > 0.) &&
-         (boids_options.separation_distance > 0.) &&
-         (boids_options.separation > 0.) && (boids_options.alignment > 0.) &&
-         (boids_options.cohesion > 0.));
+  assert((boids_options.distance >= 0.) &&
+         (boids_options.separation_distance >= 0.) &&
+         (boids_options.separation >= 0.) && (boids_options.alignment >= 0.) &&
+         (boids_options.cohesion >= 0.));
 }
 int Flock::size() const { return boids_.size(); }
 std::vector<Boid> Flock::get_boids() const { return boids_; }
@@ -47,7 +47,7 @@ void Flock::evolve(double delta_t) {  // Ambient const& amb,
                                 view_neighbours(*this, boid_copied)) +
                       cohesion(boids_options_, boid_copied,
                                view_neighbours(*this, boid_copied)));
-    speed_control(boid);
+    // speed_control(boid);
     boid.position += (boid_copied.velocity * delta_t);
     // avoid_boundaries(amb, boid);
     boids_[i] = boid;
@@ -57,9 +57,8 @@ Vector Flock::get_distance_mean_RMS() const {
   // filling a histogram with distances between all boids of the flock
   // then calculating its mean and standard deviation for a given time
   std::vector<double> dist_histo{};
-  int N =
-      this->size() * (this->size() - 1) /
-      2;  // # of distances calculated (combinations of n boids taken 2 by 2)
+  int N = this->size() * (this->size() - 1) / 2;
+  // # of distances calculated (combinations of n boids taken 2 by 2)
   double partial_sum{};
   double partial_sum2{};
   for (int i{}; i != this->size(); ++i) {
