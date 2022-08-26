@@ -17,17 +17,17 @@ bool operator!=(Boid const& boid1, Boid const& boid2) {
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options,
              double alpha = 180.)
     : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {
-  assert((boids_options.distance > 0.) &&
-         (boids_options.separation_distance > 0.) &&
-         (boids_options.separation > 0.) && (boids_options.alignment > 0.) &&
-         (boids_options.cohesion > 0.) && (alpha > 0.));
+  assert((boids_options.distance >= 0.) &&
+         (boids_options.separation_distance >= 0.) &&
+         (boids_options.separation >= 0.) && (boids_options.alignment >= 0.) &&
+         (boids_options.cohesion >= 0.) && (alpha >= 0.));
 }
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options)
     : boids_{boids}, boids_options_{boids_options} {
-  assert((boids_options.distance > 0.) &&
-         (boids_options.separation_distance > 0.) &&
-         (boids_options.separation > 0.) && (boids_options.alignment > 0.) &&
-         (boids_options.cohesion > 0.));
+  assert((boids_options.distance >= 0.) &&
+         (boids_options.separation_distance >= 0.) &&
+         (boids_options.separation >= 0.) && (boids_options.alignment >= 0.) &&
+         (boids_options.cohesion >= 0.));
 }
 int Flock::size() const { return boids_.size(); }
 std::vector<Boid> Flock::get_boids() const { return boids_; }
