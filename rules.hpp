@@ -78,8 +78,8 @@ inline Vector separation(Options const& boid_options, Boid const& boid,
       partial_sum += applied_distance(boid, boid1);
     }
   });
-  Vector corrected_velocity = partial_sum * (-boid_options.separation);
-  return corrected_velocity;
+  Vector velocity_correction = partial_sum * (-boid_options.separation);
+  return velocity_correction;
 }
 inline Vector alignment(Options const& boid_options, Boid const& boid,
                         std::vector<Boid> neighbours) {
@@ -87,10 +87,10 @@ inline Vector alignment(Options const& boid_options, Boid const& boid,
     Vector sum_velocity{};
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { sum_velocity += boid1.velocity; });
-    Vector corrected_velocity =
+    Vector velocity_correction =
         (sum_velocity / neighbours.size() - boid.velocity) *
         boid_options.alignment;
-    return corrected_velocity;
+    return velocity_correction;
   } else {
     return Vector{0, 0};
   }
@@ -102,9 +102,9 @@ inline Vector cohesion(Options const& boid_options, Boid const& boid,
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { partial_sum += boid1.position; });
     Vector centre_of_mass = partial_sum / neighbours.size();
-    Vector corrected_velocity =
+    Vector velocity_correction =
         (centre_of_mass - boid.position) * boid_options.cohesion;
-    return corrected_velocity;
+    return velocity_correction;
   } else {
     return Vector{0, 0};
   }

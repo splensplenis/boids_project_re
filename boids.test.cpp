@@ -122,3 +122,17 @@ TEST_CASE("Testing flock and multiflock classes") {
   SUBCASE("Testing multiflock evolve") {}
   SUBCASE("Testing get statistics") {}
 }
+/*
+//Boid b3{Vector{10, 10}, Vector{0, 0}};
+Boid b4{Vector{10, 0}, Vector{0, 0}};
+
+Boid b5{Vector{8, 7}, Vector{0, 0}};
+Boid b6{Vector{2, 3}, Vector{0, 0}};
+Boid b7{Vector{4, 4}, Vector{0, 0}};
+Boid b8{Vector{1.6, 3.8}, Vector{0, 0}};
+
+Options sp{10., 0.6, 0.4, 0.1, 0.2};  //
+
+Flock f1{std::vector<Boid>{b1, b2, b3, b4}, sp, 45};
+Flock f2{std::vector<Boid>{b5, b6, b7, b8}, sp, 45}
+*/

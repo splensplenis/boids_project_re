@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 
+#include "cassert"
 #include "rules.hpp"
 #include "vector.hpp"
 
