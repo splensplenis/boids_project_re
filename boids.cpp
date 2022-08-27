@@ -49,7 +49,7 @@ void Flock::evolve(double delta_t) {  // Ambient const& amb,
                                 view_neighbours(old_flock, boid_copied)) +
                       cohesion(boids_options_, boid_copied,
                                view_neighbours(old_flock, boid_copied)));
-    //speed_control(boid);
+    speed_control(boid);
     boid.position += (boid_copied.velocity * delta_t);
     // avoid_boundaries(amb, boid);
     boids_[i] = boid;
