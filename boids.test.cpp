@@ -9,7 +9,7 @@
 // boids.cpp boids.test.cpp
 
 TEST_CASE("Testing Boids") {
-  SUBCASE("Testing == and != ") {
+  SUBCASE("Testing == and !=") {
     Boid b1{Vector{1., 2.}, Vector{1., 1.}};
     Boid b2{Vector{1., 2.}, Vector{1., 1.}};
     Boid b3{Vector{5., 5.}, Vector{1., 2.}};
@@ -98,7 +98,7 @@ TEST_CASE("Testing rules") {
     CHECK(is_member(neighbours_1, b));*/
   }
   SUBCASE("Testing separation") {
-    flock.add(b1);
+    //flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     Vector velocity = separation(boids_options, b1, view_neighbours(flock, b1));
@@ -119,18 +119,16 @@ TEST_CASE("Testing rules") {
     CHECK(velocity_b8.y() == doctest::Approx(0.27));
   }
   SUBCASE("Testing alignment") {
-    flock.add(b1);
+    //flock.add(b1);
     flock.add(b4);
     flock.add(b5);
     flock.add(b8);
     Vector velocity = alignment(boids_options, b1, view_neighbours(flock, b1));
-    Vector v{-0.06666, 0.1};
+    Vector v{-0.06666, 0.};
     CHECK(doctest::Approx(velocity.x()) == v.x());
-    CHECK(doctest::Approx(velocity.y()) == v.y());
     flock.add(b7);
     Vector velocity2 = alignment(boids_options, b1, view_neighbours(flock, b1));
-    bool are_equal = (velocity == velocity2);
-    CHECK(are_equal == true);
+    CHECK(velocity == velocity2); //bool true ti basta scrivere cosi
     // adding b7 to the flock has not change b1 behaviour
     // because b7 is not seen by b1
   }
@@ -143,6 +141,10 @@ TEST_CASE("Testing rules") {
     Vector v{1.06666, -0.4};
     CHECK(doctest::Approx(velocity.x()) == v.x());
     CHECK(doctest::Approx(velocity.y()) == v.y());
+  }
+  SUBCASE("G") {
+    Flock flock_i{boids, boids_options};   //!!!!!!!!!!!!!!
+    CHECK(flock_i.get_alpha() == 180.);  
   }
   SUBCASE("Testing speed control") {
     Boid fast_boid{Vector{0., 0.}, Vector{10., 8.}};
@@ -256,6 +258,10 @@ TEST_CASE("Testing flock and multiflock classes") {
     CHECK((boid_f.velocity).x() == doctest::Approx(0.73907));
     CHECK((boid_f.velocity).y() == doctest::Approx(0.408839));*/
   }
+<<<<<<< HEAD
+  // se è vuoto, che cosa restituisce get boids? vettore di boids vuoto suppongo
+  SUBCASE("Testing multiflock ctor") {}
+=======
   SUBCASE("Testing multiflock ctor") {
     Flock flock1{std::vector<Boid>{b1, b3, b4}, boids_options_1, alpha_1};
     Flock flock2{std::vector<Boid>{b5, b6, b7}, boids_options_1, alpha_1};
@@ -270,6 +276,7 @@ TEST_CASE("Testing flock and multiflock classes") {
     bool confront = (multi.get_all_boids() == boid_vector2);
     CHECK(confront == false);
   }
+>>>>>>> d448eed0a57d6c824e16dbca0133372548e28cf9
   SUBCASE("Testing multiflock evolve") {}
   SUBCASE("Testing statistics functions") {}
 }
