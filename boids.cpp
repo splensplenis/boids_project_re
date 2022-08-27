@@ -48,7 +48,7 @@ void Flock::evolve(double delta_t) {  // Ambient const& amb,
                                 view_neighbours(*this, boid_copied)) +
                       cohesion(boids_options_, boid_copied,
                                view_neighbours(*this, boid_copied)));
-    speed_control(boid);
+    // speed_control(boid);
     boid.position += (boid_copied.velocity * delta_t);
     // avoid_boundaries(amb, boid);
     boids_[i] = boid;
@@ -58,9 +58,8 @@ Vector Flock::get_distance_mean_RMS() const {
   // filling a histogram with distances between all boids of the flock
   // then calculating its mean and standard deviation for a given time
   std::vector<double> dist_histo{};
-  int N =
-      this->size() * (this->size() - 1) /
-      2;  // # of distances calculated (combinations of n boids taken 2 by 2)
+  int N = this->size() * (this->size() - 1) / 2;
+  // # of distances calculated (combinations of n boids taken 2 by 2)
   double partial_sum{};
   double partial_sum2{};
   for (int i{}; i != this->size(); ++i) {

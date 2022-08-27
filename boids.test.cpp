@@ -8,7 +8,6 @@
 
 // to test boids, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp boids.cpp boids.test.cpp
 
-
 TEST_CASE("Testing Boids") {
   SUBCASE("Testing == and !=") {
     Boid b1{Vector{1., 2.}, Vector{1., 1.}};
@@ -23,7 +22,7 @@ TEST_CASE("Testing Boids") {
     CHECK(b0.position == zero);
     CHECK(b0.velocity == zero);
   }
-  SUBCASE("Testing distance, speed and appllied_distance functions") {
+  SUBCASE("Testing distance, speed and applied_distance functions") {
     Boid b1{Vector{1., 1.}, Vector{0., 0.}};
     Boid b2{Vector{2., 2.}, Vector{-3., -9.}};
     CHECK(distance(b1, b2) == distance(b2, b1));
@@ -39,8 +38,10 @@ TEST_CASE("Testing Boids") {
   }
 }
 TEST_CASE("Testing rules") {
-  Boid b1{Vector{1., 2.}, Vector{1., 1.}};
-  Boid b2{Vector{1., 2.}, Vector{1., 1.}};
+  Boid b1{Vector{1., 2.}, Vector{1., 0}};
+  //Boid b1{Vector{1.,2.}, Vector{1.,1.}};
+  Boid b2{Vector{1., 2.}, Vector{1., 0}};
+  //Boid b2{Vector{1.,2.}, Vector{1.,1.}};
   Boid b3{Vector{5., 5.}, Vector{1., 2.}};
   Boid b4{Vector{3., 0.}, Vector{0., -1.}};
   Boid b5{Vector{3., 2.}, Vector{-1., 2.}};
@@ -56,7 +57,11 @@ TEST_CASE("Testing rules") {
   SUBCASE("Testing is_member") {
     flock.add(b1);
     flock.add(b3);
-    CHECK(is_member(flock.get_boids(), b1) == true);
+    CHECK(is_member(flock.get_boids(), b2) == true);
+    // note: since b1 and b2 are "different" boids (built with same values)
+    // it would be desirable that the test is false;
+    // however, since the only important thing is how they behave in a flock,
+    // in this perspective b1 and b2 are actually the same
     CHECK((is_member(flock.get_boids(), b4)) == false);
   }
   SUBCASE("Testing get_neighbours_of") {
@@ -81,6 +86,7 @@ TEST_CASE("Testing rules") {
     CHECK(is_member(neighbours, b5) == true);
     CHECK((is_member(neighbours, b6)) == false);
     CHECK((is_member(neighbours, b7)) == false);
+    // cosa succede con angoli diversi?
     // alpha uguale a zero non vede nessuno, è giusto cosi?
     /*Flock flock_i{boids, boids_options, 0.};
     Boid b{Vector{2., 3.}, Vector{0., 0.}};
@@ -102,7 +108,7 @@ TEST_CASE("Testing rules") {
     velocity = separation(boids_options, b1, view_neighbours(flock, b1));
     CHECK(velocity == Vector{0., -0.15});  // with two boids
     Flock flock2{std::vector<Boid>{b1, b7, b8}, boids_options, 180.};
-    //flock2.add(b9);
+    flock2.add(b9);
     Vector velocity_b1 =
         separation(boids_options, b1, view_neighbours(flock2, b1));
     Vector velocity_b8 =
@@ -136,14 +142,69 @@ TEST_CASE("Testing rules") {
     CHECK(doctest::Approx(velocity.x()) == v.x());
     CHECK(doctest::Approx(velocity.y()) == v.y());
   }
-  SUBCASE("Testing speed control") {}
   SUBCASE("G") {
     Flock flock_i{boids, boids_options};   //!!!!!!!!!!!!!!
     CHECK(flock_i.get_alpha() == 180.);  
   }
+  SUBCASE("Testing speed control") {
+    Boid fast_boid{Vector{0., 0.}, Vector{10., 8.}};
+    Boid slow_boid{Vector{0., 0.}, Vector{0.1, 0.1}};
+    Boid still_boid{Vector{0., 0.}, Vector{0., 0.}};
+    speed_control(fast_boid);
+    speed_control(slow_boid);
+    speed_control(still_boid);
+    CHECK(speed(fast_boid) < norm2(Vector{10., 8.}));
+    CHECK(speed(slow_boid) > norm2(Vector{0.1, 0.1}));
+    CHECK(speed(still_boid) == 0.);
+  }
 }
 TEST_CASE("Testing flock and multiflock classes") {
-  SUBCASE("Testing 3-parameters flock ctor") {}
+  Boid b1{Vector{1., 2.}, Vector{1., 0}};
+  Boid b2{Vector{1., 2.}, Vector{1., 0}};
+  Boid b3{Vector{5., 5.}, Vector{1., 2.}};
+  Boid b4{Vector{3., 0.}, Vector{0., -1.}};
+  Boid b5{Vector{3., 2.}, Vector{-1., 2.}};
+  Boid b6{Vector{0., 0.}, Vector{0., 0.}};
+  Boid b7{Vector{0., 2.}, Vector{0., 0.}};
+  Boid b8{Vector{1., 2.5}, Vector{2., 2.}};
+
+  Options boid_options_def{};
+  Options boids_options_1{3., 0.5, 0.3, 0.1, 0.8};
+  double alpha_1{90.};
+  // Options boids_options_2{3., 0.5, 0.3, 0.1, 1};
+  // double alpha_2{45.};
+
+  SUBCASE("Testing Options class") {
+    CHECK(boids_options_1.distance == 3.);
+    // Options sum = (boids_options_1 + boids_options_1);
+    // CHECK(sum.distance == 6.);
+    CHECK(boid_options_def.distance == 0.);
+    CHECK(boid_options_def.separation_distance == 0.);
+    CHECK(boid_options_def.separation == 0.);
+    CHECK(boid_options_def.alignment == 0.);
+    CHECK(boid_options_def.cohesion == 0.);
+    // default values should be the one of our simulation?
+    // or we just leave 0. and in our main.cpp we suggest the defualt ones?
+  }
+  SUBCASE("Testing 3-parameters flock ctor") {
+    Flock flock{std::vector<Boid>{b1, b4, b5}, boids_options_1, alpha_1};
+    CHECK(flock.size() == 3);
+    flock.add(b3);
+    CHECK(flock.size() == 4);
+    auto boids = flock.get_boids();
+    CHECK(boids[0] == b1);
+    CHECK(boids[3] == b3);
+    CHECK(flock.get_alpha() == 90.);
+    std::vector<Boid> empty_boids{};
+    Flock flock2{empty_boids, boids_options_1, alpha_1};
+    CHECK(flock2.size() == 0);
+    // flock2.get_boids() ?
+  }
+  SUBCASE("Testing 2-paramerers flock ctor") {
+    Flock flock{std::vector<Boid>{b1, b4, b5}, boids_options_1};
+    CHECK(flock.size() == 3);
+    CHECK(flock.get_alpha() == 180.);
+  }
   SUBCASE("Testing flock evolve") {
     /*
     Options op{10, 0.1, 0.9, 0.1, 0.3};
@@ -195,9 +256,27 @@ TEST_CASE("Testing flock and multiflock classes") {
     CHECK((boid_c.velocity).y() == doctest::Approx(-0.1));
     */
   }
+<<<<<<< HEAD
   // se è vuoto, che cosa restituisce get boids? vettore di boids vuoto suppongo
   SUBCASE("Testing multiflock ctor") {}
+=======
+  SUBCASE("Testing multiflock ctor") {
+    Flock flock1{std::vector<Boid>{b1, b3, b4}, boids_options_1, alpha_1};
+    Flock flock2{std::vector<Boid>{b5, b6, b7}, boids_options_1, alpha_1};
+    Flock empty_flock{std::vector<Boid>{}, boids_options_1, alpha_1};
+    MultiFlock multi{std::vector<Flock>{flock1, flock2}};
+    CHECK(multi.size() == 2);
+    multi.add(empty_flock);
+    CHECK(multi.size() == 3);
+    std::vector<Boid> boid_vector1{b1, b3, b4, b5, b6, b7};
+    std::vector<Boid> boid_vector2{b3, b5, b1, b5, b6, b7};
+    CHECK(multi.get_all_boids() == boid_vector1);
+    bool confront = (multi.get_all_boids() == boid_vector2);
+    CHECK(confront == false);
+  }
+>>>>>>> d448eed0a57d6c824e16dbca0133372548e28cf9
   SUBCASE("Testing multiflock evolve") {}
-  SUBCASE("Testing get statistics") {}
-  
+  SUBCASE("Testing statistics functions") {}
 }
+
+// Testing boid random?
