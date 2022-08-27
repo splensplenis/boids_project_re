@@ -10,9 +10,9 @@ class MultiFlock {
 
  public:
   MultiFlock(std::vector<Flock> const&);
-  int size() const;
   std::vector<Flock> get_flocks() const;
   std::vector<Boid> get_all_boids() const;
+  int size() const;
   void add(Flock const&);
   void evolve(double delta_t); //Ambient const& amb, 
   std::vector<Vector> get_all_distance_mean_RMS() const;
@@ -85,8 +85,8 @@ inline void MultiFlock::evolve(double delta_t) { //Ambient const& amb,
       auto boid = boids_i[j];
       auto boid_copied = copy[j];
       std::vector<Boid> other_neighbours = get_other_neighbours(*this, boid);
-      Options boid_options = flock_i.get_options();
-      boid.velocity += separation(boid_options, boid_copied, other_neighbours);
+      Options boids_options = flock_i.get_options();
+      boid.velocity += separation(boids_options, boid_copied, other_neighbours);
       other_neighbours.clear();
       boids_i[j] = boid;
     }

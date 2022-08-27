@@ -24,15 +24,15 @@ struct Options {
 class Flock {
   std::vector<Boid> boids_{};
   Options boids_options_{};
-  double alpha_ = 180; //in degrees
+  double alpha_ = 180.;
 
  public:
   Flock(std::vector<Boid> const&, Options const&, double);
-  Flock(std::vector<Boid> const&, Options const&);
-  int size() const;
+  //Flock(std::vector<Boid> const&, Options const&);
   std::vector<Boid> get_boids() const;
   Options get_options() const;
   double get_alpha() const;
+  int size() const;
   void add(Boid const&);
   void evolve(double); //Ambient const&, 
   Vector get_distance_mean_RMS() const;
