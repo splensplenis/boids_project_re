@@ -36,18 +36,19 @@ double Flock::get_alpha() const { return alpha_; }
 void Flock::add(Boid const& boid) { boids_.push_back(boid); }
 void Flock::evolve(double delta_t) {  // Ambient const& amb,
   std::vector<Boid> copy{boids_};
+  Flock old_flock{*this};
   for (int i{}; i != this->size(); ++i) {
     // corrections read from copy (old state)
     // and written to flock (updated state);
     auto boid = boids_[i];
     auto boid_copied = copy[i];
     boid.velocity += (separation(boids_options_, boid_copied,
-                                 view_neighbours(*this, boid_copied)) +
+                                 view_neighbours(old_flock, boid_copied)) +
                       alignment(boids_options_, boid_copied,
-                                view_neighbours(*this, boid_copied)) +
+                                view_neighbours(old_flock, boid_copied)) +
                       cohesion(boids_options_, boid_copied,
-                               view_neighbours(*this, boid_copied)));
-    // speed_control(boid);
+                               view_neighbours(old_flock, boid_copied)));
+    //speed_control(boid);
     boid.position += (boid_copied.velocity * delta_t);
     // avoid_boundaries(amb, boid);
     boids_[i] = boid;

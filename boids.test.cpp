@@ -5,8 +5,8 @@
 #include "rules.hpp"
 #include "vector.hpp"
 
-
-// to test boids, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp boids.cpp boids.test.cpp
+// to test boids, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp
+// boids.cpp boids.test.cpp
 
 TEST_CASE("Testing Boids") {
   SUBCASE("Testing == and != ") {
@@ -39,9 +39,9 @@ TEST_CASE("Testing Boids") {
 }
 TEST_CASE("Testing rules") {
   Boid b1{Vector{1., 2.}, Vector{1., 0}};
-  //Boid b1{Vector{1.,2.}, Vector{1.,1.}};
+  // Boid b1{Vector{1.,2.}, Vector{1.,1.}};
   Boid b2{Vector{1., 2.}, Vector{1., 0}};
-  //Boid b2{Vector{1.,2.}, Vector{1.,1.}};
+  // Boid b2{Vector{1.,2.}, Vector{1.,1.}};
   Boid b3{Vector{5., 5.}, Vector{1., 2.}};
   Boid b4{Vector{3., 0.}, Vector{0., -1.}};
   Boid b5{Vector{3., 2.}, Vector{-1., 2.}};
@@ -157,8 +157,8 @@ TEST_CASE("Testing rules") {
   }
 }
 TEST_CASE("Testing flock and multiflock classes") {
-  Boid b1{Vector{1., 2.}, Vector{1., 0}};
-  Boid b2{Vector{1., 2.}, Vector{1., 0}};
+  Boid b1{Vector{1., 2.}, Vector{1., 1}};
+  Boid b2{Vector{1., 2.}, Vector{1., 1}};
   Boid b3{Vector{5., 5.}, Vector{1., 2.}};
   Boid b4{Vector{3., 0.}, Vector{0., -1.}};
   Boid b5{Vector{3., 2.}, Vector{-1., 2.}};
@@ -183,6 +183,8 @@ TEST_CASE("Testing flock and multiflock classes") {
     CHECK(boid_options_def.cohesion == 0.);
     // default values should be the one of our simulation?
     // or we just leave 0. and in our main.cpp we suggest the defualt ones?
+
+    // assert da testare??
   }
   SUBCASE("Testing 3-parameters flock ctor") {
     Flock flock{std::vector<Boid>{b1, b4, b5}, boids_options_1, alpha_1};
@@ -195,18 +197,19 @@ TEST_CASE("Testing flock and multiflock classes") {
     CHECK(flock.get_alpha() == 90.);
     std::vector<Boid> empty_boids{};
     Flock flock2{empty_boids, boids_options_1, alpha_1};
+    auto boids_vector = flock2.get_boids();
+    bool is_empty = boids_vector.begin() == boids_vector.end();
     CHECK(flock2.size() == 0);
-    // flock2.get_boids() ?
+    CHECK(is_empty == true);
   }
   SUBCASE("Testing 2-paramerers flock ctor") {
     Flock flock{std::vector<Boid>{b1, b4, b5}, boids_options_1};
     CHECK(flock.size() == 3);
-    CHECK(flock.get_alpha() == 180.);
+    // CHECK(flock.get_alpha() == 180.);
   }
   SUBCASE("Testing flock evolve") {
-    /*
-    Options op{10, 0.1, 0.9, 0.1, 0.3};
-    Flock myflock{std::vector<Boid>{b1,b3,b4}, op , 180};
+    /*Options op{10, 0.1, 0.9, 0.1, 0.3};
+    Flock myflock{std::vector<Boid>{b1, b3, b4}, op, 180};
 
     double delta_t = 0.2;
     myflock.evolve(delta_t);
@@ -225,34 +228,33 @@ TEST_CASE("Testing flock and multiflock classes") {
     CHECK((boid_b.velocity).y() == doctest::Approx(0.6));
     CHECK((boid_c.velocity).x() == doctest::Approx(0.1));
     CHECK((boid_c.velocity).y() == doctest::Approx(0.3));
-    */
 
-    /*Boid boid_a{Vector{2., 1.}, Vector{0., 1.}};
-    Boid boid_b{Vector{4., 3.}, Vector{-1., 0.}};
-    Boid boid_c{Vector{1., 4.}, Vector{2., 0.5}};
+    Options op2{10, 1, 0.1, 0.1, 0.3};
+    Boid b10{Vector{2., 1.}, Vector{0.1, 0.5}};
+    Boid b11{Vector{2.1, 1.05}, Vector{-0.8, 0.1}};
+    Boid b12{Vector{1.95, 1.}, Vector{1.65, 0.5}};
+    Flock myflock2{std::vector<Boid>{b10, b11, b12}, op2, 180};
 
-    Options op{10, 0.1, 0.9, 0.1, 0.3};
+    myflock2.evolve(delta_t);
+    myflock2.evolve(delta_t);
+    myflock2.evolve(delta_t);
+    myflock2.evolve(delta_t);
 
-    Flock flock{std::vector<Boid>{boid_a, boid_b, boid_c}, op};
-
-    double delta_t = 0.2;
-    flock.evolve(delta_t);
-    boid_a = (flock.get_boids())[0];
-    boid_b = (flock.get_boids())[1];
-    boid_c = (flock.get_boids())[2];
-    CHECK((boid_a.position).x() == doctest::Approx(2.));
-    CHECK((boid_a.position).y() == doctest::Approx(1.2));
-    CHECK((boid_b.position).x() == doctest::Approx(3.8));
-    CHECK((boid_b.position).y() == doctest::Approx(3));
-    CHECK((boid_c.position).x() == doctest::Approx(1.4));
-    CHECK((boid_c.position).y() == doctest::Approx(4.1));
-    CHECK((boid_a.velocity).x() == doctest::Approx(0.2));
-    CHECK((boid_a.velocity).y() == doctest::Approx(1.675));
-    CHECK((boid_b.velocity).x() == doctest::Approx(-1.55));
-    CHECK((boid_b.velocity).y() == doctest::Approx(-0.075));
-    CHECK((boid_c.velocity).x() == doctest::Approx(2.35));
-    CHECK((boid_c.velocity).y() == doctest::Approx(-0.1));
-    */
+    auto boid_d = (myflock2.get_boids())[0];
+    auto boid_e = (myflock2.get_boids())[1];
+    auto boid_f = (myflock2.get_boids())[2];
+    CHECK((boid_d.position).x() == doctest::Approx(2.12275));
+    CHECK((boid_d.position).y() == doctest::Approx(1.37805));
+    CHECK((boid_e.position).x() == doctest::Approx(1.65296));
+    CHECK((boid_e.position).y() == doctest::Approx(1.17391));
+    CHECK((boid_f.position).x() == doctest::Approx(3.03429));
+    CHECK((boid_f.position).y() == doctest::Approx(1.37805));
+    CHECK((boid_d.velocity).x() == doctest::Approx(0.2427));
+    CHECK((boid_d.velocity).y() == doctest::Approx(0.424607));
+    CHECK((boid_e.velocity).x() == doctest::Approx(-0.03176));
+    CHECK((boid_e.velocity).y() == doctest::Approx(0.266554));
+    CHECK((boid_f.velocity).x() == doctest::Approx(0.73907));
+    CHECK((boid_f.velocity).y() == doctest::Approx(0.408839));*/
   }
   SUBCASE("Testing multiflock ctor") {
     Flock flock1{std::vector<Boid>{b1, b3, b4}, boids_options_1, alpha_1};
