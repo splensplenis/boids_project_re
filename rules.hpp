@@ -6,28 +6,25 @@
 #include <cmath>
 #include <algorithm>
 
+// module of the distance between boids
 inline double distance(Boid const& boid1, Boid const& boid2) {
-  // scalar distance between boids: magnitude of distance vector
   double d = sqrt(norm2(boid1.position - boid2.position));
   return d;
 }
-inline double speed(Boid const& boid) {
-  // magnitude of boid's velocity
+
+// module of the speed vector
+inline double speed(Boid const& boid) {  
   double s = sqrt(norm2(boid.velocity));
   return s;
 }
+
+// vector which represent the distance between boids, direction is from b1 to b2
 inline Vector applied_distance(Boid const& boid1, Boid const& boid2) {
-  // distance vector between boids, applied to boid1 towards boid2
   Vector diff = boid2.position - boid1.position;
   return diff;
 }
 
-/*
-//control of neighbourhood:
-inline bool are_neighbours(Options const& boids_options, Boid const& boid1,
-                           Boid const& boid2) {
-  return (distance(boid1, boid2) <= boids_options.distance);
-}*/
+//check if a boid is a member of a boid vector
 inline bool is_member(std::vector<Boid> const& boids, Boid const& boid) {
   auto member = std::find(boids.begin(), boids.end(), boid);
   if (member != boids.end()) {
@@ -35,33 +32,38 @@ inline bool is_member(std::vector<Boid> const& boids, Boid const& boid) {
   }
   return false;
 }
+
+//get all neighbours of a boid
 inline std::vector<Boid> get_neighbours_of(Flock const& flock,
                                            Boid const& boid) {
   auto boids = flock.get_boids();
   auto boids_options = flock.get_options();
-  /*if (is_member(flock, boid) == false) {
-    throw std::runtime_error{"Boid is not in the flock"};
-  }*/
   std::vector<Boid> neighbours{};
+  //get all boids which are within a fixed distance from the boid
   for (double i{}; i != flock.size(); ++i) {
-    if ((boids[i]) != boid && distance(boid, boids[i]) <= boids_options.distance) {  //i.e. are_neighbours(boids_options, boid, boids[i])
+    if ((boids[i]) != boid && distance(boid, boids[i]) <= boids_options.distance) {
       neighbours.push_back(boids[i]);
     }
   }
   return neighbours;
 }
+
+//get the neighbours that a boid can view
 inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
   auto boids = flock.get_boids();
   double pi = std::acos(-1.0);
   std::vector<Boid> view_neighbours{};
   std::vector<Boid> neighbours = get_neighbours_of(flock, boid);
   for (double i{}; i != neighbours.size();
-       ++i) {  // scalar product gives the angle
-    double theta =   //in radianti
+       ++i) {  
+    // scalar product gives the angle
+    double theta =
         std::acos((boid.velocity * applied_distance(boid, neighbours[i])) /
-                  (speed(boid) * distance(boid, neighbours[i]))); 
+                  (speed(boid) * distance(boid, neighbours[i])));
     theta = 180 * theta / pi;
-    double alpha = flock.get_alpha();  // alpha is half the plain angle!
+    double alpha = flock.get_alpha();  // alpha is half the plain angle
+    //neighbours viewed are the neighbours which its position makes an angle with the position of the considered boid 
+    //smaller than the vision angle
     if (theta <= alpha) {
       view_neighbours.push_back(neighbours[i]);
     }
@@ -70,31 +72,37 @@ inline std::vector<Boid> view_neighbours(Flock const& flock, Boid const& boid) {
 }
 
 //rules regolating boids movement:
+
+//the nearby boids apply on the considered boid a speed change proportional to their distance towards him
 inline Vector separation(Options const& boid_options, Boid const& boid,
-                         std::vector<Boid> neighbours) {
+                         std::vector<Boid> const& neighbours) {
   Vector partial_sum{};
   std::for_each(neighbours.begin(), neighbours.end(), [&](Boid const& boid1) {
     if (distance(boid1, boid) <= boid_options.separation_distance) {
       partial_sum += applied_distance(boid, boid1);
     }
   });
-  Vector velocity_correction = partial_sum * (-boid_options.separation);
-  return velocity_correction;
+  Vector corrected_velocity = partial_sum * (-boid_options.separation);
+  return corrected_velocity;
 }
+
+//from the mean of the nearby boids is subtracted the speed of the considered boid multiplied by a fixed factor
 inline Vector alignment(Options const& boid_options, Boid const& boid,
                         std::vector<Boid> neighbours) {
   if (neighbours.size() != 0) {
     Vector sum_velocity{};
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { sum_velocity += boid1.velocity; });
-    Vector velocity_correction =
+    Vector corrected_velocity =
         (sum_velocity / neighbours.size() - boid.velocity) *
         boid_options.alignment;
-    return velocity_correction;
+    return corrected_velocity;
   } else {
     return Vector{0, 0};
   }
 }
+
+//at the considered boid position is subtracted the centre of mass position of the nearby boids multiplied by a fixed factor
 inline Vector cohesion(Options const& boid_options, Boid const& boid,
                        std::vector<Boid> neighbours) {
   if (neighbours.size() != 0) {
@@ -102,63 +110,30 @@ inline Vector cohesion(Options const& boid_options, Boid const& boid,
     std::for_each(neighbours.begin(), neighbours.end(),
                   [&](Boid const& boid1) { partial_sum += boid1.position; });
     Vector centre_of_mass = partial_sum / neighbours.size();
-    Vector velocity_correction =
+    Vector corrected_velocity =
         (centre_of_mass - boid.position) * boid_options.cohesion;
-    return velocity_correction;
+    return corrected_velocity;
   } else {
     return Vector{0, 0};
   }
 }
-inline void speed_control(Boid& boid, double max_speed = 8., double min_speed = 2. ) {
+
+/* if the boid goes too much slow or too much fast:
+    - its velocity components are divided by the module of the speed
+    - its velocity components are multiplied by min/max speed
+  Doing so the boid accelerates/decelerates smoothly if he goes above or beyond these limits */
+inline void speed_control(Boid& boid, double max_speed,double min_speed) {
+/*   double max_speed = 200.;                
+  double min_speed = 20.; */
   if (speed(boid) > max_speed) {
     boid.velocity /= speed(boid);
     boid.velocity *= max_speed;
   }
-  if (speed(boid) < min_speed && speed(boid) != 0 ) {
+  if ((speed(boid) < min_speed) && (speed(boid)!=0)) {
     boid.velocity /= speed(boid);
     boid.velocity *= min_speed;
   }
 }
 
-//behaviour at edges: see graphics.cpp
-
 #endif
-
-// COMPORTAMENTO AI BORDI: "rimbalzo elastico"
-// se la posizione del boid supera il bordo alla successiva iterazione,
-// lo si riporta al bordo con velocità opposta (come se avesse urtato)
-
-// funzione che allontana dal bordo con spinta opposta:
-
-/*inline void keep_centred(Ambient const& ambient, Boid& boid) {
-  //...
-}
-
-inline void avoid_boundaries(Ambient const& ambient, Boid& boid) {
-  if ((boid.position).x() > (ambient.bottom_right_corner).x()) {
-    Vector v1{(ambient.bottom_right_corner).x(), (boid.position).y()};
-    // in realtà anche y non è quella...approssimazione
-    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
-    boid.position = v1;
-    boid.velocity = v2;
-  }
-  if ((boid.position).y() > (ambient.bottom_right_corner).y()) {
-    Vector v1{(boid.position).x(), (ambient.bottom_right_corner).y()};
-    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
-    boid.position = v1;
-    boid.velocity = v2;
-  }
-  if ((boid.position).x() < (ambient.top_left_corner).x()) {
-    Vector v1{(ambient.top_left_corner).x(), (boid.position).y()};
-    Vector v2{-(boid.velocity).x(), (boid.velocity).y()};
-    boid.position = v1;
-    boid.velocity = v2;
-  }
-  if ((boid.position).y() < (ambient.top_left_corner).y()) {
-    Vector v1{(boid.position).x(), (ambient.top_left_corner).y()};
-    Vector v2{(boid.velocity).x(), -(boid.velocity).y()};
-    boid.position = v1;
-    boid.velocity = v2;
-  }
-}*/
 

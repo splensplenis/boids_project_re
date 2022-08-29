@@ -1,9 +1,10 @@
 #include "boids.hpp"
 
-#include <cassert>
 #include <iostream>
+#include<stdexcept>
+#include<cassert>
+#include<numeric>
 
-#include "cassert"
 #include "rules.hpp"
 #include "vector.hpp"
 
@@ -15,27 +16,64 @@ bool operator!=(Boid const& boid1, Boid const& boid2) {
 }
 
 Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options,
-             double alpha = 180.) 
-    : boids_{boids}, boids_options_{boids_options}, alpha_{alpha} {
-  assert((boids_options.distance >= 0.) &&
-         (boids_options.separation_distance >= 0.) &&
-         (boids_options.separation >= 0.) && (boids_options.alignment >= 0.) &&
-         (boids_options.cohesion >= 0.) && (alpha >= 0.));
+             double alpha)
+    : boids_{boids},
+      boids_options_{boids_options},
+      alpha_{alpha} {
+        if (boids_options_.alignment < 0){
+          throw std::invalid_argument{"alignment cannot be less than 0"};
+        }
+        if (boids_options_.cohesion < 0){
+          throw std::invalid_argument{"cohesion cannot be less than 0"};
+        }
+        if (boids_options_.separation < 0){
+          throw std::invalid_argument{"separation cannot be less than 0"};
+        }
+        if (boids_options_.separation_distance < 0){
+          throw std::invalid_argument{"separation_distance cannot be less than 0"};
+        }
+        if (boids_options_.distance < 0){
+          throw std::invalid_argument{"distance cannot be less than 0"};
+        }
+        if (alpha_ < 0 || alpha > 180){
+          throw std::invalid_argument{"angle must be between 0 and 180"};
+        }
+        assert(boids_options_.alignment >= 0);
+        assert(boids_options_.cohesion >= 0);
+        assert(boids_options_.separation >= 0);
+        assert(boids_options_.separation_distance >= 0);
+        assert(boids_options_.distance >= 0);
+        assert(alpha_ >= 0 && alpha_ <= 180);
+      }  // should check values
+Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options)
+: boids_{boids}, boids_options_{boids_options}, alpha_{180} {
+        if (boids_options_.alignment < 0){
+          throw std::invalid_argument{"alignment cannot be less than 0"};
+        }
+        if (boids_options_.cohesion < 0){
+          throw std::invalid_argument{"cohesion cannot be less than 0"};
+        }
+        if (boids_options_.separation < 0){
+          throw std::invalid_argument{"separation cannot be less than 0"};
+        }
+        if (boids_options_.separation_distance < 0){
+          throw std::invalid_argument{"separation_distance cannot be less than 0"};
+        }
+        if (boids_options_.distance < 0){
+          throw std::invalid_argument{"distance cannot be less than 0"};
+        }  
+        assert(boids_options_.alignment >= 0);
+        assert(boids_options_.cohesion >= 0);
+        assert(boids_options_.separation >= 0);
+        assert(boids_options_.separation_distance >= 0);
+        assert(boids_options_.distance >= 0);
 }
-Flock flock_iii{std::vector<Boid>{}, Options{3., 0.5, 0.3, 0.1, 0.8}};
-/*Flock::Flock(std::vector<Boid> const& boids, Options const& boids_options)
-    : boids_{boids}, boids_options_{boids_options} {
-  assert((boids_options.distance >= 0.) &&
-         (boids_options.separation_distance >= 0.) &&
-         (boids_options.separation >= 0.) && (boids_options.alignment >= 0.) &&
-         (boids_options.cohesion >= 0.));
-}*/
+int Flock::size() const { return boids_.size(); }
 std::vector<Boid> Flock::get_boids() const { return boids_; }
 Options Flock::get_options() const { return boids_options_; }
 double Flock::get_alpha() const { return alpha_; }
-int Flock::size() const { return boids_.size(); }
 void Flock::add(Boid const& boid) { boids_.push_back(boid); }
-void Flock::evolve(double delta_t) {  // Ambient const& amb,
+void Flock::evolve(double delta_t,double max_speed,double min_speed) {
   std::vector<Boid> copy{boids_};
   Flock old_flock{*this};
   for (int i{}; i != this->size(); ++i) {
@@ -49,50 +87,61 @@ void Flock::evolve(double delta_t) {  // Ambient const& amb,
                                 view_neighbours(old_flock, boid_copied)) +
                       cohesion(boids_options_, boid_copied,
                                view_neighbours(old_flock, boid_copied)));
-    speed_control(boid);
+    speed_control(boid,max_speed,min_speed);
     boid.position += (boid_copied.velocity * delta_t);
-    // avoid_boundaries(amb, boid);
     boids_[i] = boid;
   }
 }
+
+//calculating mean distance and its variance for a given time
 Vector Flock::get_distance_mean_RMS() const {
-  // filling a histogram with distances between all boids of the flock
-  // then calculating its mean and standard deviation for a given time
-  std::vector<double> dist_histo{};
-  int N = this->size() * (this->size() - 1) / 2;
-  // # of distances calculated (combinations of n boids taken 2 by 2)
-  double partial_sum{};
-  double partial_sum2{};
-  for (int i{}; i != this->size(); ++i) {
-    for (int j{i + 1}; j != this->size(); ++j) {
-      double value = distance(boids_[i], boids_[j]);
-      dist_histo.push_back(value);
+  if (this->size() > 1){
+    std::vector<double> dist_holder{};
+    double rms_partial_sum{};
+    double mean_partial_sum{};
+    for (int first_boid{}; first_boid != this->size(); ++first_boid) {
       // this way distance bewtween boid 0 and boid 1 is calculated only once
-      partial_sum2 += value;
+      for (int second_boid{first_boid + 1}; second_boid != this->size(); ++second_boid) {
+        double value = distance(boids_[first_boid], boids_[second_boid]);
+        dist_holder.push_back(value); //save distance value
+        mean_partial_sum += value;
+      }
+    }
+    double mean_distance = mean_partial_sum / this->size(); //compute mean
+    for (int i{}; i != this->size(); ++i) { 
+      rms_partial_sum +=
+          (dist_holder[i] - mean_distance) * (dist_holder[i] - mean_distance); //sum of the squared deviation from mean
+    }
+    double distance_RMS = rms_partial_sum / (this->size() - 1); //compute variance
+    return Vector{mean_distance, distance_RMS};
+  } else {
+    return Vector{0.0,0.0};
+  }
+}
+
+//calculating mean velocity and its variance for a given time
+Vector Flock::get_speed_mean_RMS() const {
+  std::vector<double> speed_holder{};
+  if (this->size() > 1){
+    double rms_partial_sum{};
+    double mean_partial_sum{};
+    for (int boid{}; boid != this->size(); ++boid) {
+      double value = speed(boids_[boid]);
+      speed_holder.push_back(value); //save velocity value
+      mean_partial_sum += value;
+    }
+    double mean_speed = mean_partial_sum / this->size(); //compute mean
+    for (int i{}; i != this->size(); ++i) {
+      rms_partial_sum +=
+          (speed_holder[i] - mean_speed) * (speed_holder[i] - mean_speed); //sum of the squared deviation from mean
+    }
+    double speed_RMS = rms_partial_sum / (this->size() - 1); //compute variance
+    return Vector{mean_speed, speed_RMS};
+  } else {
+    if (this -> size() == 0){
+      return Vector{0.0,0.0};
+    } else {
+      return Vector{speed(boids_[0]),0.0};
     }
   }
-  double mean_distance = partial_sum2 / N;
-  for (int i{}; i != this->size(); ++i) {
-    partial_sum +=
-        (dist_histo[i] - mean_distance) * (dist_histo[i] - mean_distance);
-  }
-  double distance_RMS = partial_sum / (N - 1);
-  return Vector{mean_distance, distance_RMS};
-}
-Vector Flock::get_speed_mean_RMS() const {
-  std::vector<double> speed_histo{};
-  double partial_sum{};
-  double partial_sum2{};
-  for (int i{}; i != this->size(); ++i) {
-    double value = speed(boids_[i]);
-    speed_histo.push_back(value);
-    partial_sum2 += value;
-  }
-  double mean_speed = partial_sum2 / this->size();
-  for (int i{}; i != this->size(); ++i) {
-    partial_sum +=
-        (speed_histo[i] - mean_speed) * (speed_histo[i] - mean_speed);
-  }
-  double speed_RMS = partial_sum / (this->size() - 1);
-  return Vector{mean_speed, speed_RMS};
 }

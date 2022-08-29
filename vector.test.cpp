@@ -2,8 +2,6 @@
 #include "doctest.h"
 #include "vector.hpp"
 
-//to test vectors, compile with: g++ -Wall -Wextra -fsanitize=address vector.cpp vector.test.cpp
-
 TEST_CASE("Testing Vectors") {
   SUBCASE("Testing == and !=") {
     Vector v1{1., 2.};
@@ -17,7 +15,7 @@ TEST_CASE("Testing Vectors") {
     Vector w{};
     CHECK (v == w);
   }
-  SUBCASE("Testing x() and y() methods") {
+  SUBCASE("Testing x() and y() methods") {  // va bene scritto cosi?
     Vector v1{1., 2.};
     CHECK(v1.x() == doctest::Approx(1.));
     CHECK(v1.y() == doctest::Approx(2.));
@@ -52,11 +50,9 @@ TEST_CASE("Testing Vectors") {
     scalar = 4;
     v2 /= scalar;
     CHECK(v2 == v3);
+    //CHECK(v2.y() == doctest::Approx(2.));
     scalar = 0.;
     CHECK_THROWS(v1 /= scalar);
-    Vector null{};
-    double scalar2 = 3.5;
-    CHECK(null/scalar2 == null);
   }
   SUBCASE("Testing * and /") {
     Vector v1{1., 2.};
